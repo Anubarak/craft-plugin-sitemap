@@ -56,7 +56,7 @@ class Sitemap extends Plugin
     public $hasCpSection = true;
     public $hasCpSettings = true;
     // table schema version
-    public $schemaVersion = '1.0.2';
+    public $schemaVersion = '1.0.3';
 
     /**
      * Return the settings response (if some one clicks on the settings/plugin icon)
@@ -131,8 +131,14 @@ class Sitemap extends Plugin
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-            function(RegisterUrlRulesEvent $event) {
-                $event->rules['sitemap.xml'] = 'sitemap/sitemap/index';
+            static function(RegisterUrlRulesEvent $event) {
+                $event->rules[]  = [
+                    'pattern'   => 'sitemap<suffix:[a-zA-Z_-].*>.xml',
+                    'route'     => 'sitemap/sitemap/index',
+                    'defaults' => [
+                        'suffix' => '',
+                    ]
+                ];
             }
         );
 

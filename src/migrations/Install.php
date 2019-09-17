@@ -110,6 +110,7 @@ class Install extends Migration
                     'uid' => $this->uid(),
                 // Custom columns in the table
                     'linkId' => $this->integer()->notNull(),
+                    'useCustomUrl' => $this->boolean(),
                     'type' => $this->string(30)->notNull()->defaultValue(''),
                     'priority' => $this->double(2)->notNull()->defaultValue(0.5),
                     'changefreq' => $this->string(30)->notNull()->defaultValue(''),

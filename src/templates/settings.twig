@@ -47,17 +47,18 @@
 
             {% set sitemapSectionsRows = sitemapSectionsRows|merge({
                 ('id:' ~ section.id): {
-                heading: section.heading,
-                type: section.type,
-                enabled: include('_includes/forms/lightswitch', {
-                name: 'sitemapSections[id:'~section.id~'][enabled]',
-                on: section.enabled,
-                value: 1,
-                small: true
-                }),
-                priority: section.priority,
-                changefreq : section.changefreq,
-                entries : section.elementCount
+                    heading: section.heading,
+                    type: section.type,
+                    enabled: include('_includes/forms/lightswitch', {
+                        name: 'sitemapSections[id:'~section.id~'][enabled]',
+                        on: section.enabled,
+                        value: 1,
+                        small: true
+                    }),
+                    priority: section.priority,
+                    changefreq : section.changefreq,
+                    entries : section.elementCount,
+                    useCustomUrl : section.useCustomUrl
                 }
             }) %}
         {% endfor %}
@@ -125,6 +126,11 @@ Please note that the priority you assign to a page is not likely to influence th
                 ],
                 small: true
             },
+            useCustomUrl: {
+                heading: 'Use Custom URL'|t('sitemap'),
+                type: 'lightswitch',
+                info: "If the XML should be splitted into different files"|t('sitemap'),
+            },
             entries: {
                 heading : 'Entries',
                 info: "The number of underlying entries (published and enabled), with a public url",
@@ -139,6 +145,7 @@ Please note that the priority you assign to a page is not likely to influence th
     <hr>
 
 
+    {#
     {% set sitemapCategoryRows = [] %}
 
     {% if allStructures|length %}
@@ -162,11 +169,11 @@ Please note that the priority you assign to a page is not likely to influence th
             }) %}
         {% endfor %}
     {% endif %}
-
+#}
     {% set sitemapErrors = [] %}
 
 
-
+    {#
     {{ forms.editableTableField({
         label: "Enable categories"|t('app'),
         instructions: "Choose which categories should be listed in the sitemap, and configure the crawl settings. <b>Note: the categories should have url's to get listed here </b>"|t('app'),
@@ -234,20 +241,21 @@ Please note that the priority you assign to a page is not likely to influence th
         rows: sitemapCategoryRows,
         staticRows: true,
         errors: sitemapErrors|unique
-    }) }}
+    }) }}#}
 
     <hr>
-    The sitemap to submit to the search engines can be found on <b><a target="_blank" href="/sitemap.xml">/sitemap.xml</a></b>
+    The sitemap to submit to the search engines can be found on <b><a target="_blank"
+                                                                      href="/sitemap.xml">/sitemap.xml</a></b>
 {% endblock %}
 
 {% js %}
 
 var $sitemapRows = $('#sitemapSections').children('tbody').children(),
-$lightswitches = $sitemapRows.children('th:nth-child(2)').children('.lightswitch');
+    $lightswitches = $sitemapRows.children('th:nth-child(2)').children('.lightswitch');
 
 function updateSitemapSections() {
     console.log('updateSitemapSections');
-    $lightswitches.each(function() {
+    $lightswitches.each(function () {
         if ($(this).data('lightswitch').on) {
             $(this).parent().nextAll('td').removeClass('disabled').find('textarea,div.lightswitch,input').attr('tabindex', '0');
         } else {
@@ -259,8 +267,8 @@ function updateSitemapSections() {
 $lightswitches.on('change', updateSitemapSections);
 
 
-
 // categories
+/*
 var $sitemapRows = $('#sitemapCategories').children('tbody').children(),
 $lightswitches = $sitemapRows.children('th:nth-child(2)').children('.lightswitch');
 
@@ -273,14 +281,14 @@ function updateSitemapCategotries() {
             $(this).parent().nextAll('td').addClass('disabled').find('textarea,div.lightswitch,input').attr('tabindex', '-1');
         }
     });
-}
+}*/
 
-$lightswitchesCategories.on('change', updateSitemapCategotries);
+//$lightswitchesCategories.on('change', updateSitemapCategotries);
 
 
-Garnish.$doc.ready(function() {
+Garnish.$doc.ready(function () {
     updateSitemapSections();
-    updateSitemapCategotries();
+    //updateSitemapCategotries();
 });
 
 

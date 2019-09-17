@@ -11,6 +11,10 @@
 namespace dolphiq\sitemap\records;
 
 use craft\db\ActiveRecord;
+use craft\records\CategoryGroup;
+use craft\records\Section;
+use modules\vision\records\UserTraining;
+use yii\db\ActiveQuery;
 
 /**
  * SitemapRecord Record
@@ -27,11 +31,14 @@ use craft\db\ActiveRecord;
  * @author    Johan Zandstra
  * @package   Sitemap
  * @since     1.0.0
- * @property int    $id
- * @property int    $linkId
- * @property string $type
- * @property float  $priority
- * @property string $changefreq
+ * @property int                         $id
+ * @property int                         $linkId
+ * @property string                      $type
+ * @property float                       $priority
+ * @property string                      $changefreq
+ * @property \yii\db\ActiveQuery         $category
+ * @property \yii\db\ActiveQuery|Section $section
+ * @property bool                        $useCustomUrl
  */
 class SitemapEntry extends ActiveRecord
 {
@@ -76,5 +83,32 @@ class SitemapEntry extends ActiveRecord
     public static function tableName()
     {
         return '{{%dolphiq_sitemap_entries}}';
+    }
+
+    /**
+     * getSection
+     *
+     * @return \yii\db\ActiveQuery
+     *
+     * @author Robin Schambach
+     * @since  17.09.2019
+     */
+    public function getSection(): ActiveQuery
+    {
+        return $this->hasOne(Section::class, ['id' => 'linkId']);
+    }
+
+    /**
+     * getCategory
+     *
+     *
+     * @return \yii\db\ActiveQuery
+     *
+     * @author Robin Schambach
+     * @since  17.09.2019
+     */
+    public function getCategory(): ActiveQuery
+    {
+        return $this->hasOne(CategoryGroup::class, ['id' => 'linkId']);
     }
 }

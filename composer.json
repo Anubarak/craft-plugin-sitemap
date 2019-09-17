@@ -22,8 +22,14 @@
         }
     ],
     "require": {
+        "php": ">=7.3.0",
         "craftcms/cms": "^3.1.0",
-        "jaybizzle/crawler-detect": "1.*"
+        "jaybizzle/crawler-detect": "1.*",
+        "ext-dom": "*"
+    }
+    ,
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
     },
     "repositories": [
         {
@@ -39,7 +45,6 @@
     "extra": {
         "name": "XML Sitemap",
         "handle": "sitemap",
-        "schemaVersion": "1.0.2",
         "developer": "Dolphiq",
         "developerUrl": "https://dolphiq.nl/",
         "hasCpSettings": true,
