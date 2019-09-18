@@ -13,8 +13,17 @@ namespace dolphiq\sitemap\behaviors;
 
 use yii\base\Behavior;
 
+/**
+ * Class ElementSiteMapBehavior
+ * @package dolphiq\sitemap\behaviors
+ * @since   18.09.2019
+ */
 class ElementSiteMapBehavior extends Behavior
 {
     public $priority;
     public $changefreq;
+    /**
+     * @var \craft\elements\Asset $siteMapAsset
+     */
+    public $siteMapAsset;
 }

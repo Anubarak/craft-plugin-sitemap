@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpComposerExtensionStubsInspection */
+
 /**
  * sitemap plugin for Craft CMS 3.x
  *
@@ -12,18 +13,24 @@ namespace dolphiq\sitemap\services;
 
 use Craft;
 use craft\base\Component;
+use craft\base\ElementInterface;
 use craft\db\Table;
 use craft\elements\Entry;
 use craft\events\ConfigEvent;
 use craft\events\RebuildConfigEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
 use craft\models\Site;
 use DateTime;
 use dolphiq\sitemap\behaviors\ElementSiteMapBehavior;
+use dolphiq\sitemap\events\PopulateNewsEvent;
 use dolphiq\sitemap\events\SearchElementsEvent;
 use dolphiq\sitemap\records\SitemapEntry;
+use dolphiq\sitemap\Sitemap;
+use DOMDocument;
+use DOMElement;
 
 /**
  * SitemapService Service
@@ -45,6 +52,7 @@ class SitemapService extends Component
      */
     public const PROJECT_CONFIG_KEY = 'dolphiq_sitemap_entries';
     public const EVENT_SEARCH_ELEMENTS = 'searchElementsEvent';
+    public const EVENT_POPULATE_NEWS = 'populateNewsEvent';
     // Public Methods
     // =========================================================================
 
@@ -90,6 +98,7 @@ class SitemapService extends Component
                 'priority'     => $record->priority,
                 'changefreq'   => $record->changefreq,
                 'useCustomUrl' => $record->useCustomUrl,
+                'field'        => $record->fieldId !== null? Db::uidById(Table::FIELDS, (int)$record->fieldId) : null
             ]
         );
 
@@ -140,6 +149,7 @@ class SitemapService extends Component
         $record->priority = $event->newValue['priority'];
         $record->changefreq = $event->newValue['changefreq'];
         $record->useCustomUrl = $event->newValue['useCustomUrl'];
+        $record->fieldId =  $event->newValue['field'] !== null? Db::idByUid(Table::FIELDS, $event->newValue['field']) :  null;
         $record->save();
     }
 
@@ -205,7 +215,7 @@ class SitemapService extends Component
      * @since   17.09.2019
      * @author  Robin Schambach
      */
-    public function buildIndexFile(Site $site): \DOMDocument
+    public function buildIndexFile(Site $site): DOMDocument
     {
         // grab the different sections
         /** @var SitemapEntry[] $records */
@@ -224,7 +234,7 @@ class SitemapService extends Component
             }
         }
 
-        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
         $siteMapIndex = $dom->createElementNS('http://www.sitemaps.org/schemas/sitemap/0.9', 'sitemapindex');
@@ -269,57 +279,54 @@ class SitemapService extends Component
      */
     public function buildSiteMap(array $sectionIds, site $site): array
     {
-        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
+        $news = Sitemap::$plugin->getSettings()->newsSections;
+        $entriesBySite = $this->_getEntries($sectionIds);
+        $isNews = false;
+        if (empty($entriesBySite) === false && isset($entriesBySite[$site->id]) &&
+            empty($entriesBySite[$site->id]) === false) {
+            /** @var Entry $firstOne */
+            $firstOne = ArrayHelper::firstValue($entriesBySite[$site->id]);
+            if ($firstOne !== null && isset($news[$firstOne->getSection()->handle])) {
+                $isNews = true;
+            }
+        }
+
+
         $urlset = $dom->createElementNS('http://www.sitemaps.org/schemas/sitemap/0.9', 'urlset');
-        $urlset->setAttributeNS(
-            'http://www.w3.org/2000/xmlns/',
-            'xmlns:xhtml',
-            'http://www.w3.org/1999/xhtml'
-        );
+        if ($isNews === false) {
+            $urlset->setAttributeNS(
+                'http://www.w3.org/2000/xmlns/',
+                'xmlns:image',
+                'http://www.google.com/schemas/sitemap-image/1.1'
+            );
+        } else {
+            $urlset->setAttributeNS(
+                'http://www.w3.org/2000/xmlns/',
+                'xmlns:news',
+                'http://www.google.com/schemas/sitemap-news/0.9'
+            );
+        }
+
+
         $dom->appendChild($urlset);
 
-        $entriesBySite = $this->_getEntries($sectionIds);
         if (isset($entriesBySite[$site->id])) {
 
             foreach ($entriesBySite[$site->id] as $element) {
-                /** @var \craft\base\Element $element */
-                $loc = $element->getUrl();
-                if ($loc === null) {
-                    continue;
+                $node = null;
+                if ($isNews === false) {
+                    $node = $this->createNode($element, $dom, $entriesBySite, $site);
+                } else {
+                    $node = $this->createNewsNode($element, $dom, $entriesBySite, $site);
                 }
 
-                $url = $dom->createElement('url');
-                $urlset->appendChild($url);
-                $url->appendChild($dom->createElement('loc', $loc));
-                $url->appendChild($dom->createElement('priority', $element->priority));
-                $url->appendChild($dom->createElement('changefreq', $element->changefreq));
-                $dateUpdated = $element->dateUpdated->format(DATE_ATOM);
-                $url->appendChild($dom->createElement('lastmod', $dateUpdated));
-
-                $elementsForOtherSite = [];
-                foreach ($entriesBySite as $key => $siteEntry) {
-                    if ((int) $key !== (int) $site->id && isset($entriesBySite[$key][$element->id])) {
-                        $elementsForOtherSite[] = $entriesBySite[$key][$element->id];
-                    }
+                if ($node !== null) {
+                    $urlset->appendChild($node);
                 }
-
-                if (empty($elementsForOtherSite) === false) {
-                    foreach ($elementsForOtherSite as $siteElement) {
-                        /** @var \craft\base\Element $siteElement */
-                        $alternateLoc = $siteElement->getUrl();
-                        if ($alternateLoc === null) {
-                            continue;
-                        }
-
-                        $alternateLink = $dom->createElementNS('http://www.w3.org/1999/xhtml', 'xhtml:link');
-                        $alternateLink->setAttribute('rel', 'alternate');
-                        $alternateLink->setAttribute('hreflang', $siteElement->getSite()->language);
-                        $alternateLink->setAttribute('href', $alternateLoc);
-                        $url->appendChild($alternateLink);
-                    }
-                }
+                // add news information
             }
         }
 
@@ -339,6 +346,116 @@ class SitemapService extends Component
     }
 
     /**
+     * createNode
+     *
+     * @param \craft\base\ElementInterface $element
+     * @param DOMDocument                  $dom
+     * @param array                        $entriesBySite
+     * @param \craft\models\Site           $site
+     *
+     * @return DOMElement|null
+     *
+     * @throws \yii\base\InvalidConfigException
+     * @since  18.09.2019
+     * @author Robin Schambach
+     */
+    public function createNode(ElementInterface $element, DOMDocument $dom, array $entriesBySite, Site $site): ?DOMElement
+    {
+        /** @var \craft\base\Element $element */
+        $loc = $element->getUrl();
+        if ($loc === null) {
+            return null;
+        }
+
+        $url = $dom->createElement('url');
+        $url->appendChild($dom->createElement('loc', $loc));
+        $url->appendChild($dom->createElement('priority', $element->priority));
+        $url->appendChild($dom->createElement('changefreq', $element->changefreq));
+        $dateUpdated = $element->dateUpdated->format(DATE_ATOM);
+        $url->appendChild($dom->createElement('lastmod', $dateUpdated));
+
+        $elementsForOtherSite = [];
+        foreach ($entriesBySite as $key => $siteEntry) {
+            if ((int) $key !== (int) $site->id && isset($entriesBySite[$key][$element->id])) {
+                $elementsForOtherSite[] = $entriesBySite[$key][$element->id];
+            }
+        }
+
+        if (empty($elementsForOtherSite) === false) {
+            foreach ($elementsForOtherSite as $siteElement) {
+                /** @var \craft\base\Element $siteElement */
+                $alternateLoc = $siteElement->getUrl();
+                if ($alternateLoc === null) {
+                    continue;
+                }
+
+                $alternateLink = $dom->createElementNS('http://www.w3.org/1999/xhtml', 'xhtml:link');
+                $alternateLink->setAttribute('rel', 'alternate');
+                $alternateLink->setAttribute('hreflang', $siteElement->getSite()->language);
+                $alternateLink->setAttribute('href', $alternateLoc);
+                $url->appendChild($alternateLink);
+            }
+        }
+
+        // add images
+        if($element->siteMapAsset !== null){
+            /** @var \craft\elements\Asset $asset */
+            $asset = $element->siteMapAsset;
+            $image = $dom->createElement('image:image');
+            $image->appendChild($dom->createElement('image:loc', $asset->getUrl()));
+            $image->appendChild($dom->createElement('image:title', $asset->title));
+            $url->appendChild($image);
+        }
+
+        return $url;
+    }
+
+    public function createNewsNode(ElementInterface $element, DOMDocument $dom, array $entriesBySite, Site $site): ?DOMElement
+    {
+        /** @var Entry $element */
+        $author = $element->getAuthor();
+        $defaultData = [
+            'author'   => $author !== null ? $author->getFullName() : '',
+            'language' => $site->language,
+            'postDate' => $element->postDate !== null ? $element->postDate->format(DateTime::ATOM) : null,
+            'title'    => $element->title,
+            'url'      => $element->getUrl()
+        ];
+
+        $event = new PopulateNewsEvent(['element' => $element, 'data' => $defaultData]);
+        if ($this->hasEventHandlers(self::EVENT_POPULATE_NEWS)) {
+            $this->trigger(self::EVENT_POPULATE_NEWS, $event);
+        }
+
+        $data = $event->data;
+
+        if ($data['url'] === null || $data['author'] === null || $data['language'] === null) {
+            return null;
+        }
+
+        $url = $dom->createElement('url');
+        $url->appendChild($dom->createElement('loc', $data['url']));
+        $news = $dom->createElement('news:news');
+        $url->appendChild($news);
+
+        // publication
+        $publication = $dom->createElement('news:publication');
+        $publication->appendChild($dom->createElement('news:name', $data['author']));
+        $publication->appendChild($dom->createElement('news:language', $data['language']));
+        $news->appendChild($publication);
+
+        // release date
+        $news->appendChild($dom->createElement('news:publication_date', $data['postDate']));
+
+        // title
+        $news->appendChild($dom->createElement('news:title', $data['title']));
+
+        $url->appendChild($news);
+
+        return $url;
+    }
+
+    /**
      * Get all Entries in those sections
      *
      * @param array $sectionIds
@@ -352,11 +469,25 @@ class SitemapService extends Component
     {
         /** @var SitemapEntry[] $records */
         $records = SitemapEntry::find()->where(['type' => 'section'])->andWhere(['IN', 'linkId', $sectionIds])->with(
-                ['section']
-            )->all();
+            ['section', 'field']
+        )->all();
         $entries = [];
+        $entryTypes = ArrayHelper::getColumn(Craft::$app->getSections()->getEntryTypesByHandle('link'), 'id');
+        if (empty($entryTypes) === false) {
+            ArrayHelper::prependOrAppend($entryTypes, 'not', true);
+        }
+        $newsSections = Sitemap::$plugin->getSettings()->newsSections;
         foreach ($records as $record) {
-            $query = Entry::find()->siteId('*')->sectionId($record->section->id);
+            $field = $record->field;
+            $query = Entry::find()->siteId('*')->typeId($entryTypes)->sectionId($record->section->id);
+            if($field !== null){
+                $query->with($field->handle);
+            }
+
+            // check for news...
+            if (isset($newsSections[$record->section->handle]) === true) {
+                Craft::configure($query, $newsSections[$record->section->handle]);
+            }
 
             $event = new SearchElementsEvent(['query' => $query, 'siteMapEntry' => $record]);
             if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
@@ -365,12 +496,14 @@ class SitemapService extends Component
             /** @var \craft\base\Element[] $entriesForSection */
             $entriesForSection = $event->query->all();
             foreach ($entriesForSection as $element) {
+                $assets = $field !== null? $element->{$field->handle} : null;
                 $element->attachBehavior(
                     'meta',
                     [
                         'class'      => ElementSiteMapBehavior::class,
                         'priority'   => $record->priority,
                         'changefreq' => $record->changefreq,
+                        'siteMapAsset' => $assets !== null && empty($assets) === false? $assets[0] : null,
                     ]
                 );
                 $entries[$element->siteId][$element->id] = $element;

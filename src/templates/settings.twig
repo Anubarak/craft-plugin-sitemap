@@ -58,7 +58,8 @@
                     priority: section.priority,
                     changefreq : section.changefreq,
                     entries : section.elementCount,
-                    useCustomUrl : section.useCustomUrl
+                    useCustomUrl : section.useCustomUrl,
+                    fieldId: section.fieldId
                 }
             }) %}
         {% endfor %}
@@ -130,6 +131,12 @@ Please note that the priority you assign to a page is not likely to influence th
                 heading: 'Use Custom URL'|t('sitemap'),
                 type: 'lightswitch',
                 info: "If the XML should be splitted into different files"|t('sitemap'),
+            },
+            fieldId: {
+                heading : 'Image Field'|t('sitemap'),
+                info: "The asset that should be used as preview",
+                type: 'select',
+                options: fields
             },
             entries: {
                 heading : 'Entries',

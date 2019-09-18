@@ -12,6 +12,7 @@ namespace dolphiq\sitemap\records;
 
 use craft\db\ActiveRecord;
 use craft\records\CategoryGroup;
+use craft\records\Field;
 use craft\records\Section;
 use modules\vision\records\UserTraining;
 use yii\db\ActiveQuery;
@@ -31,14 +32,16 @@ use yii\db\ActiveQuery;
  * @author    Johan Zandstra
  * @package   Sitemap
  * @since     1.0.0
- * @property int                         $id
- * @property int                         $linkId
- * @property string                      $type
- * @property float                       $priority
- * @property string                      $changefreq
- * @property \yii\db\ActiveQuery         $category
- * @property \yii\db\ActiveQuery|Section $section
- * @property bool                        $useCustomUrl
+ * @property int                                      $id
+ * @property int                                      $linkId
+ * @property string                                   $type
+ * @property float                                    $priority
+ * @property string                                   $changefreq
+ * @property \yii\db\ActiveQuery                      $category
+ * @property \yii\db\ActiveQuery|Section              $section
+ * @property bool                                     $useCustomUrl
+ * @property \yii\db\ActiveQuery|\craft\records\Field $field
+ * @property int                                      $fieldId
  */
 class SitemapEntry extends ActiveRecord
 {
@@ -110,5 +113,19 @@ class SitemapEntry extends ActiveRecord
     public function getCategory(): ActiveQuery
     {
         return $this->hasOne(CategoryGroup::class, ['id' => 'linkId']);
+    }
+
+    /**
+     * Get the field
+     *
+     *
+     * @return \yii\db\ActiveQuery
+     *
+     * @author Robin Schambach
+     * @since  18.09.2019
+     */
+    public function getField(): ActiveQuery
+    {
+        return $this->hasOne(Field::class, ['id' => 'fieldId']);
     }
 }

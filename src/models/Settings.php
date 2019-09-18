@@ -34,6 +34,9 @@ class Settings extends Model
     // Public Properties
     // =========================================================================
 
+
+    public $newsSections = [];
+
     /**
      * Some field model attribute
      *

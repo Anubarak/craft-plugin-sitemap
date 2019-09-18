@@ -13,6 +13,7 @@ namespace dolphiq\sitemap\controllers;
 use Craft;
 use craft\db\Query;
 use craft\elements\Entry;
+use craft\fields\Assets;
 use craft\web\Controller;
 use dolphiq\sitemap\records\SitemapEntry;
 use dolphiq\sitemap\Sitemap;
@@ -98,6 +99,7 @@ class SettingsController extends Controller
                 'id'             => (int) $section->id,
                 'structureId'    => (int) $section->structureId,
                 'name'           => $section->name,
+                'fieldId'           => $siteMapRecord['fieldId']?? null,
                 'handle'         => $section->handle,
                 'type'           => $section->type,
                 'elementCount'   => Entry::find()->sectionId($section->id)->count(),
@@ -170,7 +172,8 @@ class SettingsController extends Controller
                     'elementCount' => $section['elementCount'],
                     'changefreq'   => $section['changefreq'],
                     'priority'     => $section['priority'],
-                    'useCustomUrl' => (bool)$section['useCustomUrl']
+                    'useCustomUrl' => (bool)$section['useCustomUrl'],
+                    'fieldId'      => $section['fieldId']
                 ];
             }
         }
@@ -193,11 +196,24 @@ class SettingsController extends Controller
             }
         }
         */
+
+        $fields = Craft::$app->getFields()->getAllFields();
+        $fieldData = [['value' => null, 'label' => '']];
+        foreach ($fields as $field){
+            if($field instanceof Assets){
+                $fieldData[] = [
+                    'label' => $field->name,
+                    'value' => $field->id
+                ];
+            }
+        }
+
         $variables = [
             'settings'      => Sitemap::$plugin->getSettings(),
             'source'        => $source,
             'pathPrefix'    => $source === 'CpSettings' ? 'settings/' : '',
             'allStructures' => $allStructures,
+            'fields'        => $fieldData
             //'allCategories' => $allCategoryStructures
             // 'allRedirects' => $allRedirects
         ];
@@ -246,12 +262,14 @@ class SettingsController extends Controller
                         $sitemapEntry->priority = $entry['priority'];
                         $sitemapEntry->changefreq = $entry['changefreq'];
                         $sitemapEntry->useCustomUrl = $entry['useCustomUrl'] ?? false;
+                        $sitemapEntry->fieldId = $entry['fieldId'] ?? null;
                         $siteMapService->saveEntry($sitemapEntry);
                         $allSectionIds[] = $id;
                     }
                 }
             }
         }
+
         // remove all sitemaps not in the id list
         if (empty($allSectionIds)) {
             $records = SitemapEntry::findAll(['type' => 'section']);

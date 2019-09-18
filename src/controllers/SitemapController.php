@@ -102,12 +102,8 @@ class SitemapController extends Controller
         $path = PathHelper::getSiteMapPath();
         // only default route
         $name = 'sitemap_' . $site->id  . $suffix . '.xml';
-        try{
             $simpleXml = simplexml_load_string(file_get_contents($path . $name));
-        }catch (Exception $exception){
-            // maybe there is not such a file.... let's create it ¯\_(ツ)_/¯
-            $simpleXml = Sitemap::$plugin->getSiteMap()->buildIndexFile($site);
-        }
+
         $response = Craft::$app->response;
         $response->format = Response::FORMAT_RAW;
         $headers = $response->getHeaders();
