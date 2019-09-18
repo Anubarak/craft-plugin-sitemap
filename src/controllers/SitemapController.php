@@ -107,7 +107,7 @@ class SitemapController extends Controller
         $response = Craft::$app->response;
         $response->format = Response::FORMAT_RAW;
         $headers = $response->getHeaders();
-        $headers->add('Content-Type', 'text/xml');
+        $headers->add('Content-Type', 'application/xml');
 
         return $simpleXml->saveXML();
     }
