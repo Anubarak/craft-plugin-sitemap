@@ -13,6 +13,7 @@ namespace dolphiq\sitemap;
 use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterUrlRulesEvent;
+use craft\helpers\UrlHelper;
 use craft\services\ProjectConfig;
 use craft\web\UrlManager;
 use dolphiq\sitemap\models\Settings;
@@ -33,9 +34,10 @@ use yii\base\Event;
  * @package   Sitemap
  * @since     1.0.0
  *
- * @property  SitemapService $sitemapService
- * @property mixed           $settingsResponse
- * @property  Settings       $settings
+ * @property  SitemapService                          $sitemapService
+ * @property mixed                                    $settingsResponse
+ * @property \dolphiq\sitemap\services\SitemapService $siteMap
+ * @property  Settings                                $settings
  * @method    Settings getSettings()
  */
 class Sitemap extends Plugin
@@ -65,9 +67,9 @@ class Sitemap extends Plugin
 
     public function getSettingsResponse()
     {
-        $url = \craft\helpers\UrlHelper::cpUrl('settings/sitemap');
+        $url = UrlHelper::cpUrl('settings/sitemap');
 
-        return \Craft::$app->controller->redirect($url);
+        return Craft::$app->controller->redirect($url);
     }
 
     /**
@@ -76,17 +78,20 @@ class Sitemap extends Plugin
      * @param RegisterUrlRulesEvent $event
      */
 
-    public function registerCpUrlRules(RegisterUrlRulesEvent $event)
+    public function registerCpUrlRules(RegisterUrlRulesEvent $event): void
     {
         // only register CP URLs if the user is logged in
-        if (!\Craft::$app->user->identity) {
+        if (!Craft::$app->user->identity) {
             return;
         }
 
         $rules = [
-
             // register routes for the settings tab
             'settings/sitemap'              => [
+                'route'  => 'sitemap/settings',
+                'params' => ['source' => 'CpSettings']
+            ],
+            'sitemap'                       => [
                 'route'  => 'sitemap/settings',
                 'params' => ['source' => 'CpSettings']
             ],
@@ -120,6 +125,8 @@ class Sitemap extends Plugin
             ]
         );
 
+        $this->hasCpSection = $this->getSettings()->useProjectConfig === false;
+
         // Register our CP routes
         Event::on(
             UrlManager::class,
@@ -132,9 +139,9 @@ class Sitemap extends Plugin
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
             static function(RegisterUrlRulesEvent $event) {
-                $event->rules[]  = [
-                    'pattern'   => 'sitemap<suffix:[a-zA-Z_-].*>.xml',
-                    'route'     => 'sitemap/sitemap/index',
+                $event->rules[] = [
+                    'pattern'  => 'sitemap<suffix:[a-zA-Z_-].*>.xml',
+                    'route'    => 'sitemap/sitemap/index',
                     'defaults' => [
                         'suffix' => '',
                     ]
@@ -142,11 +149,14 @@ class Sitemap extends Plugin
             }
         );
 
-        $path = SitemapService::PROJECT_CONFIG_KEY.'.{uid}';
-        Craft::$app->projectConfig
-            ->onAdd($path, [$this->getSiteMap(), 'handleChangedSiteMapEntry'])
-            ->onUpdate($path, [$this->getSiteMap(), 'handleChangedSiteMapEntry'])
-            ->onRemove($path, [$this->getSiteMap(), 'handleDeletedSiteMapEntry']);
+        $path = SitemapService::PROJECT_CONFIG_KEY . '.{uid}';
+        Craft::$app->projectConfig->onAdd($path, [$this->getSiteMap(), 'handleChangedSiteMapEntry'])->onUpdate(
+                $path,
+                [
+                    $this->getSiteMap(),
+                    'handleChangedSiteMapEntry'
+                ]
+            )->onRemove($path, [$this->getSiteMap(), 'handleDeletedSiteMapEntry']);
 
         Event::on(
             ProjectConfig::class,
@@ -162,6 +172,7 @@ class Sitemap extends Plugin
             ),
             __METHOD__
         );
+
     }
 
     // Protected Methods
@@ -170,9 +181,9 @@ class Sitemap extends Plugin
     /**
      * Creates and returns the model used to store the plugin’s settings.
      *
-     * @return \craft\base\Model|null
+     * @return Settings
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): Settings
     {
         return new Settings();
     }
@@ -181,9 +192,10 @@ class Sitemap extends Plugin
      * Returns the rendered settings HTML, which will be inserted into the content
      * block on the settings page.
      *
-     * @throws \Twig_Error_Loader
-     * @throws \yii\base\Exception
      * @return string The rendered settings HTML
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Twig\Error\LoaderError
      */
     protected function settingsHtml(): string
     {
@@ -200,7 +212,7 @@ class Sitemap extends Plugin
      *
      * @return \dolphiq\sitemap\services\SitemapService
      */
-    public function getSiteMap():SitemapService
+    public function getSiteMap(): SitemapService
     {
         return $this->sitemapService;
     }

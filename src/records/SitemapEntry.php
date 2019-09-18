@@ -14,7 +14,6 @@ use craft\db\ActiveRecord;
 use craft\records\CategoryGroup;
 use craft\records\Field;
 use craft\records\Section;
-use modules\vision\records\UserTraining;
 use yii\db\ActiveQuery;
 
 /**

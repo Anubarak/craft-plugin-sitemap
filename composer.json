@@ -48,7 +48,6 @@
         "developer": "Dolphiq",
         "developerUrl": "https://dolphiq.nl/",
         "hasCpSettings": true,
-        "hasCpSection": false,
         "components": {
             "sitemapService": "dolphiq\\sitemap\\services\\SitemapService"
         },

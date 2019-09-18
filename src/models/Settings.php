@@ -34,8 +34,18 @@ class Settings extends Model
     // Public Properties
     // =========================================================================
 
-
+    /**
+     * Special Criteria for news section
+     *
+     * @var array $newsSections
+     */
     public $newsSections = [];
+    /**
+     * Use the project-config or not
+     *
+     * @var bool $useProjectConfig
+     */
+    public $useProjectConfig = false;
 
     /**
      * Some field model attribute

@@ -69,6 +69,13 @@ class SitemapService extends Component
      */
     public function saveEntry(SitemapEntry $record): bool
     {
+        // don't use the project-config and just save the record
+        if(Sitemap::$plugin->getSettings()->useProjectConfig === false){
+            return $record->save();
+        }
+
+        // don't use the project-config
+
         // is it a new one?
         $isNew = empty($record->id);
         if ($isNew) {
@@ -113,9 +120,19 @@ class SitemapService extends Component
      * Delete an entry from project config
      *
      * @param \dolphiq\sitemap\records\SitemapEntry $record
+     *
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function deleteEntry(SitemapEntry $record): void
     {
+        if(Sitemap::$plugin->getSettings()->useProjectConfig === false){
+            // just delete the record
+            $record->delete();
+            return;
+        }
+
+        // use project-config
         $path = self::PROJECT_CONFIG_KEY . ".{$record->uid}";
         Craft::$app->projectConfig->remove($path);
     }
@@ -127,6 +144,10 @@ class SitemapService extends Component
      */
     public function handleChangedSiteMapEntry(ConfigEvent $event): void
     {
+        if(Sitemap::$plugin->getSettings()->useProjectConfig === false){
+            return;
+        }
+
         $uid = $event->tokenMatches[0];
         $id = Db::idByUid(SitemapEntry::tableName(), $uid);
 

@@ -11,6 +11,7 @@
 
 namespace dolphiq\sitemap\console\controllers;
 
+use Craft;
 use craft\console\Controller;
 use dolphiq\sitemap\Sitemap;
 use yii\console\ExitCode;
@@ -35,7 +36,7 @@ class DefaultController extends Controller
      */
     public function actionIndex(): int
     {
-        $sites = \Craft::$app->getSites()->getAllSites();
+        $sites = Craft::$app->getSites()->getAllSites();
         foreach ($sites as $site){
             if($site->hasUrls && $site->getBaseUrl()){
                 Sitemap::getInstance()->getSiteMap()->buildIndexFile($site);
