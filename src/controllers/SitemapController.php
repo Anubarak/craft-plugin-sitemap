@@ -102,7 +102,11 @@ class SitemapController extends Controller
         $path = PathHelper::getSiteMapPath();
         // only default route
         $name = 'sitemap_' . $site->id  . $suffix . '.xml';
+        if(file_exists($path . $name)){
             $simpleXml = simplexml_load_string(file_get_contents($path . $name));
+        }else{
+            return $this->redirect('sitemap.xml');
+        }
 
         $response = Craft::$app->response;
         $response->format = Response::FORMAT_RAW;

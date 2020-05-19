@@ -1,5 +1,9 @@
 # sitemap Changelog
 
+## 1.1.1 - 2020-05-19
+### Changed
+- Check if sitemap exists, if not redirect to "sitemap.xml"
+
 ## 1.1.0 - 2019-03-29
 ### Added
 - Added Craft CMS 3.1.20 Project Config Support

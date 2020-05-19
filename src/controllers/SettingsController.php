@@ -225,12 +225,14 @@ class SettingsController extends Controller
      * Called when saving the settings.
      *
      * @return \Craft\web\Response
+     * @throws \yii\base\ErrorException
      * @throws \yii\base\Exception
      * @throws \yii\base\NotSupportedException
+     * @throws \yii\db\StaleObjectException
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\web\ForbiddenHttpException
      * @throws \yii\web\ServerErrorHttpException
-     * @throws \yii\base\ErrorException
+     * @throws \Throwable
      */
     public function actionSaveSitemap(): craft\web\Response
     {
