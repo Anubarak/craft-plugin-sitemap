@@ -97,7 +97,7 @@ class Install extends Migration
     {
         $tablesCreated = false;
 
-    // sitemap_sitemaprecord table
+        // sitemap_sitemaprecord table
         $tableSchema = Craft::$app->db->schema->getTableSchema('{{%dolphiq_sitemap_entries}}');
         if ($tableSchema === null) {
             $tablesCreated = true;
@@ -108,15 +108,25 @@ class Install extends Migration
                     'dateCreated' => $this->dateTime()->notNull(),
                     'dateUpdated' => $this->dateTime()->notNull(),
                     'uid' => $this->uid(),
-                // Custom columns in the table
+                    // Custom columns in the table
                     'linkId' => $this->integer()->notNull(),
                     'useCustomUrl' => $this->boolean(),
+                    'fieldId' => $this->integer(),
                     'type' => $this->string(30)->notNull()->defaultValue(''),
                     'priority' => $this->double(2)->notNull()->defaultValue(0.5),
                     'changefreq' => $this->string(30)->notNull()->defaultValue(''),
                 ]
             );
         }
+
+        $this->addForeignKey(
+            null,
+            '{{%dolphiq_sitemap_entries}}',
+            ['fieldId'],
+            '{{%fields}}',
+            ['id'],
+            'CASCADE'
+        );
 
         return $tablesCreated;
     }

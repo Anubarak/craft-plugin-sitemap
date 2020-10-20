@@ -1,5 +1,9 @@
 # sitemap Changelog
 
+## 1.1.1 - 2020-10-20
+### fixed
+- add missing column in install migration
+
 ## 1.1.1 - 2020-05-19
 ### Changed
 - Check if sitemap exists, if not redirect to "sitemap.xml"
