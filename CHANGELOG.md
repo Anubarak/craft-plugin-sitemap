@@ -1,6 +1,12 @@
 # sitemap Changelog
 
-## 1.1.1 - 2020-10-20
+## 1.1.3 - 2020-11-18
+
+### added
+
+- added navbar icon
+
+## 1.1.2 - 2020-10-20
 ### fixed
 - add missing column in install migration
 
