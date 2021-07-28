@@ -105,7 +105,11 @@ class SitemapController extends Controller
         if(file_exists($path . $name)){
             $simpleXml = simplexml_load_string(file_get_contents($path . $name));
         }else{
-            return $this->redirect('sitemap.xml');
+            if($suffix){
+                return $this->redirect('sitemap.xml');
+            }else{
+                throw new HttpException(400, 'Generate a default sitemap');
+            }
         }
 
         $response = Craft::$app->response;

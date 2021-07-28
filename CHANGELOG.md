@@ -1,5 +1,15 @@
 # sitemap Changelog
 
+## 1.1.4 - 2020-11-18
+
+### changed
+
+- an exception is now thrown if no default sitemap was generated
+
+### fixed
+
+- you can now change settings when allowAdminChanges is false
+
 ## 1.1.3 - 2020-11-18
 
 ### added

@@ -237,7 +237,9 @@ class SettingsController extends Controller
     public function actionSaveSitemap(): craft\web\Response
     {
         $this->requirePostRequest();
-        $this->requireAdmin();
+        $settings = Sitemap::$plugin->getSettings();
+        $this->requireAdmin($settings->useProjectConfig);
+
         $request = Craft::$app->getRequest();
         // @TODO: check the input and save the sections
         $sitemapSections = $request->getBodyParam('sitemapSections');
