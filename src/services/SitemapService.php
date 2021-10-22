@@ -70,7 +70,7 @@ class SitemapService extends Component
     public function saveEntry(SitemapEntry $record): bool
     {
         // don't use the project-config and just save the record
-        if(Sitemap::$plugin->getSettings()->useProjectConfig === false){
+        if (Sitemap::$plugin->getSettings()->useProjectConfig === false) {
             return $record->save();
         }
 
@@ -97,17 +97,17 @@ class SitemapService extends Component
         );
 
         // set it in the config
-        Craft::$app->getProjectConfig()->set(
-            $path,
-            [
-                'linkId'       => $uidById,
-                'type'         => $record->type,
-                'priority'     => $record->priority,
-                'changefreq'   => $record->changefreq,
-                'useCustomUrl' => $record->useCustomUrl,
-                'field'        => $record->fieldId !== null? Db::uidById(Table::FIELDS, (int)$record->fieldId) : null
-            ]
-        );
+        Craft::$app->getProjectConfig()->set($path, [
+                                                      'linkId'       => $uidById,
+                                                      'type'         => $record->type,
+                                                      'priority'     => $record->priority,
+                                                      'changefreq'   => $record->changefreq,
+                                                      'useCustomUrl' => $record->useCustomUrl,
+                                                      'field'        => $record->fieldId !== null ? Db::uidById(
+                                                          Table::FIELDS,
+                                                          (int) $record->fieldId
+                                                      ) : null
+                                                  ]);
 
         if ($isNew) {
             $record->id = Db::idByUid(SitemapEntry::tableName(), $record->uid);
@@ -126,9 +126,10 @@ class SitemapService extends Component
      */
     public function deleteEntry(SitemapEntry $record): void
     {
-        if(Sitemap::$plugin->getSettings()->useProjectConfig === false){
+        if (Sitemap::$plugin->getSettings()->useProjectConfig === false) {
             // just delete the record
             $record->delete();
+
             return;
         }
 
@@ -144,7 +145,7 @@ class SitemapService extends Component
      */
     public function handleChangedSiteMapEntry(ConfigEvent $event): void
     {
-        if(Sitemap::$plugin->getSettings()->useProjectConfig === false){
+        if (Sitemap::$plugin->getSettings()->useProjectConfig === false) {
             return;
         }
 
@@ -170,7 +171,10 @@ class SitemapService extends Component
         $record->priority = $event->newValue['priority'];
         $record->changefreq = $event->newValue['changefreq'];
         $record->useCustomUrl = $event->newValue['useCustomUrl'];
-        $record->fieldId =  $event->newValue['field'] !== null? Db::idByUid(Table::FIELDS, $event->newValue['field']) :  null;
+        $record->fieldId = $event->newValue['field'] !== null ? Db::idByUid(
+            Table::FIELDS,
+            $event->newValue['field']
+        ) : null;
         $record->save();
     }
 
@@ -270,14 +274,15 @@ class SitemapService extends Component
         FileHelper::createDirectory($path);
         $baseUrl = $site->getBaseUrl() . 'sitemap_';
         foreach ($indexes as $index) {
-
-            $url = $dom->createElement('sitemap');
-            $siteMapIndex->appendChild($url);
-            $url->appendChild($dom->createElement('loc', $baseUrl . $index['name'] . '.xml'));
             $subSiteMap = $this->buildSiteMap($index['sectionIds'], $site);
+            if($subSiteMap){
+                $url = $dom->createElement('sitemap');
+                $siteMapIndex->appendChild($url);
+                $url->appendChild($dom->createElement('loc', $baseUrl . $index['name'] . '.xml'));
 
-            $subSiteMap['siteMap']->save($path . 'sitemap_' . $site->id . '_' . $index['name'] . '.xml');
-            $url->appendChild($dom->createElement('lastmod', $subSiteMap['lastEdited']));
+                $subSiteMap['siteMap']->save($path . 'sitemap_' . $site->id . '_' . $index['name'] . '.xml');
+                $url->appendChild($dom->createElement('lastmod', $subSiteMap['lastEdited']));
+            }
         }
 
 
@@ -298,13 +303,17 @@ class SitemapService extends Component
      * @since  17.09.2019
      * @author Robin Schambach
      */
-    public function buildSiteMap(array $sectionIds, site $site): array
+    public function buildSiteMap(array $sectionIds, Site $site): array
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
         $news = Sitemap::$plugin->getSettings()->newsSections;
-        $entriesBySite = $this->_getEntries($sectionIds);
+        $entriesBySite = $this->_getEntries($sectionIds, $site);
+        if(empty($entriesBySite)){
+            return [];
+        }
+
         $isNews = false;
         if (empty($entriesBySite) === false && isset($entriesBySite[$site->id]) &&
             empty($entriesBySite[$site->id]) === false) {
@@ -349,9 +358,16 @@ class SitemapService extends Component
                 }
                 // add news information
             }
+        }else{
+            return [];
         }
 
-        $query = Entry::find()->siteId('*')->orderBy(['dateUpdated' => SORT_DESC])->sectionId($sectionIds);
+        //@formatter:off
+        $query = Entry::find()
+            ->siteId('*')
+            ->orderBy(['dateUpdated' => SORT_DESC])
+            ->sectionId($sectionIds);
+        //@formatter:on
 
         $event = new SearchElementsEvent(['query' => $query]);
         if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
@@ -380,8 +396,12 @@ class SitemapService extends Component
      * @since  18.09.2019
      * @author Robin Schambach
      */
-    public function createNode(ElementInterface $element, DOMDocument $dom, array $entriesBySite, Site $site): ?DOMElement
-    {
+    public function createNode(
+        ElementInterface $element,
+        DOMDocument      $dom,
+        array            $entriesBySite,
+        Site             $site
+    ): ?DOMElement {
         /** @var \craft\base\Element $element */
         $loc = $element->getUrl();
         if ($loc === null) {
@@ -419,7 +439,7 @@ class SitemapService extends Component
         }
 
         // add images
-        if($element->siteMapAsset !== null){
+        if ($element->siteMapAsset !== null) {
             /** @var \craft\elements\Asset $asset */
             $asset = $element->siteMapAsset;
             $image = $dom->createElement('image:image');
@@ -431,8 +451,12 @@ class SitemapService extends Component
         return $url;
     }
 
-    public function createNewsNode(ElementInterface $element, DOMDocument $dom, array $entriesBySite, Site $site): ?DOMElement
-    {
+    public function createNewsNode(
+        ElementInterface $element,
+        DOMDocument      $dom,
+        array            $entriesBySite,
+        Site             $site
+    ): ?DOMElement {
         /** @var Entry $element */
         $author = $element->getAuthor();
         $defaultData = [
@@ -480,28 +504,42 @@ class SitemapService extends Component
      * Get all Entries in those sections
      *
      * @param array $sectionIds
+     * @param Site $site
      *
      * @return array
      *
      * @author Robin Schambach
      * @since  17.09.2019
      */
-    private function _getEntries(array $sectionIds = []): array
+    private function _getEntries(array $sectionIds, Site $site): array
     {
         /** @var SitemapEntry[] $records */
-        $records = SitemapEntry::find()->where(['type' => 'section'])->andWhere(['IN', 'linkId', $sectionIds])->with(
-            ['section', 'field']
-        )->all();
+        //@formatter:off
+        $records = SitemapEntry::find()
+            ->where(['type' => 'section'])
+            ->andWhere(['IN', 'linkId', $sectionIds])
+            ->with(['section', 'field'])
+            ->all();
+        //@formatter:on
+
         $entries = [];
         $entryTypes = ArrayHelper::getColumn(Craft::$app->getSections()->getEntryTypesByHandle('link'), 'id');
         if (empty($entryTypes) === false) {
             ArrayHelper::prependOrAppend($entryTypes, 'not', true);
+        } else {
+            $entryTypes = null;
         }
         $newsSections = Sitemap::$plugin->getSettings()->newsSections;
+
         foreach ($records as $record) {
             $field = $record->field;
-            $query = Entry::find()->siteId('*')->typeId($entryTypes)->sectionId($record->section->id);
-            if($field !== null){
+            //@formatter:off
+            $query = Entry::find()
+                ->siteId('*')
+                ->typeId($entryTypes)
+                ->sectionId($record->section->id);
+            //@formatter:on
+            if ($field !== null) {
                 $query->with($field->handle);
             }
 
@@ -510,23 +548,22 @@ class SitemapService extends Component
                 Craft::configure($query, $newsSections[$record->section->handle]);
             }
 
-            $event = new SearchElementsEvent(['query' => $query, 'siteMapEntry' => $record]);
+            $event = new SearchElementsEvent(['query' => $query, 'siteMapEntry' => $record, 'site' => $site]);
             if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
                 $this->trigger(self::EVENT_SEARCH_ELEMENTS, $event);
             }
             /** @var \craft\base\Element[] $entriesForSection */
             $entriesForSection = $event->query->all();
+
             foreach ($entriesForSection as $element) {
-                $assets = $field !== null? $element->{$field->handle} : null;
-                $element->attachBehavior(
-                    'meta',
-                    [
-                        'class'      => ElementSiteMapBehavior::class,
-                        'priority'   => $record->priority,
-                        'changefreq' => $record->changefreq,
-                        'siteMapAsset' => $assets !== null && empty($assets) === false? $assets[0] : null,
-                    ]
-                );
+                $assets = $field !== null ? $element->{$field->handle} : null;
+                $element->attachBehavior('meta', [
+                                                   'class'        => ElementSiteMapBehavior::class,
+                                                   'priority'     => $record->priority,
+                                                   'changefreq'   => $record->changefreq,
+                                                   'siteMapAsset' => $assets !== null &&
+                                                                     empty($assets) === false ? $assets[0] : null,
+                                               ]);
                 $entries[$element->siteId][$element->id] = $element;
             }
         }

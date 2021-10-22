@@ -31,4 +31,8 @@ class SearchElementsEvent extends Event
      * @var \dolphiq\sitemap\records\SitemapEntry $siteMapEntry
      */
     public $siteMapEntry;
+    /**
+     * @var \craft\models\Site $site
+     */
+    public $site;
 }
