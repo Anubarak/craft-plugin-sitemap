@@ -19,19 +19,13 @@
 
 {% set fullPageForm = true %}
 
-{% do view.registerAssetBundle("dolphiq\\sitemap\\assetbundles\\sitemap\\SitemapAsset") %}
-{% do view.registerAssetBundle("dolphiq\\sitemap\\assetbundles\\indexcpsection\\IndexCPSectionAsset") %}
-
+{% do view.registerAssetBundle("dolphiq\\sitemap\\web\\assets\\sitemap\\SitemapAsset") %}
 
 {# The title of this CP section #}
 {% set title = "Sitemap settings" %}
 
 {# The URL to this plugin's base CP section #}
 {% set pluginCpUrl = url('sitemap') %}
-
-{# Get a URL to an image in our AssetBundle #}
-{% set iconUrl = view.getAssetManager().getPublishedUrl('@dolphiq/sitemap/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
-
 
 {# The content of the CP Section#}
 {% block content %}

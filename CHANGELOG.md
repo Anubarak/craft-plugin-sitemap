@@ -1,5 +1,11 @@
 # sitemap Changelog
 
+## 1.1.5 - 2022-07-06
+
+### fixed
+
+- make asset bundle PSR conform
+
 ## 1.1.4 - 2020-11-18
 
 ### changed
