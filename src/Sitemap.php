@@ -55,17 +55,17 @@ class Sitemap extends Plugin
     // Public Methods
     // =========================================================================
 
-    public $hasCpSection = true;
-    public $hasCpSettings = true;
+    public bool $hasCpSection = true;
+    public bool $hasCpSettings = true;
     // table schema version
-    public $schemaVersion = '1.0.4';
+    public string $schemaVersion = '1.0.4';
 
     /**
      * Return the settings response (if some one clicks on the settings/plugin icon)
      *
      */
 
-    public function getSettingsResponse()
+    public function getSettingsResponse(): mixed
     {
         $url = UrlHelper::cpUrl('settings/sitemap');
 
@@ -81,7 +81,7 @@ class Sitemap extends Plugin
     public function registerCpUrlRules(RegisterUrlRulesEvent $event): void
     {
         // only register CP URLs if the user is logged in
-        if (!Craft::$app->user->identity) {
+        if (!Craft::$app->getUser()->getIdentity()) {
             return;
         }
 

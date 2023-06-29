@@ -1,5 +1,13 @@
 # sitemap Changelog
 
+
+## 4.0.0 - 2023-06-29
+
+### added
+
+- update craft 4.0
+
+
 ## 1.1.5 - 2022-07-06
 
 ### fixed
