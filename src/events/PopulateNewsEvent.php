@@ -11,6 +11,7 @@
 
 namespace dolphiq\sitemap\events;
 
+use craft\elements\Entry;
 use yii\base\Event;
 
 /**
@@ -23,7 +24,7 @@ class PopulateNewsEvent extends Event
     /**
      * @var \craft\elements\Entry $element
      */
-    public $element;
+    public Entry $element;
     /**
      * An array with Keys
      * author
@@ -33,5 +34,5 @@ class PopulateNewsEvent extends Event
      *
      * @var array $data
      */
-    public $data;
+    public array $data;
 }

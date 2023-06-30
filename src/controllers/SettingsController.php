@@ -49,7 +49,7 @@ class SettingsController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = false;
+    protected int|bool|array $allowAnonymous = false;
 
     /**
      * Get Sections
@@ -113,33 +113,6 @@ class SettingsController extends Controller
         return $response;
     }
 
-    private function _createCategoryQuery(): Query
-    {
-        return (new Query())->select(
-            [
-                'categorygroups.id',
-                'categorygroups.name',
-                'count(DISTINCT entries.id) entryCount',
-                'count(DISTINCT elements.id) elementCount',
-                'sitemap_entries.id sitemapEntryId',
-                'sitemap_entries.changefreq changefreq',
-                'sitemap_entries.priority priority',
-            ]
-        )->from(['{{%categories}} categories'])->innerJoin(
-            '{{%categorygroups}} categorygroups',
-            '[[categories.groupId]] = [[categorygroups.id]]'
-        )->innerJoin(
-            '{{%categorygroups_sites}} categorygroups_sites',
-            '[[categorygroups_sites.groupId]] = [[categorygroups.id]] AND [[categorygroups_sites.hasUrls]] = 1'
-        )->leftJoin('{{%entries}} entries', '[[categories.id]] = [[entries.sectionId]]')->leftJoin(
-            '{{%elements}} elements',
-            '[[entries.id]] = [[elements.id]] AND [[elements.enabled]] = 1'
-        )->leftJoin(
-            '{{%dolphiq_sitemap_entries}} sitemap_entries',
-            '[[categorygroups.id]] = [[sitemap_entries.linkId]] AND [[sitemap_entries.type]] = "category"'
-        )->groupBy(['categorygroups.id'])->orderBy(['name' => SORT_ASC]);
-    }
-
     // Public Methods
     // =========================================================================
 
@@ -177,25 +150,6 @@ class SettingsController extends Controller
                 ];
             }
         }
-
-        /*
-        $allCategories = $this->_createCategoryQuery()->all();
-        $allCategoryStructures = [];
-        if (is_array($allCategories)) {
-            // print_r($allSections);
-            foreach ($allCategories as $category) {
-                $allCategoryStructures[] = [
-                    'id'           => $category['id'],
-                    'type'         => 'category',
-                    'heading'      => $category['name'],
-                    'enabled'      => ($category['sitemapEntryId'] > 0 ? true : false),
-                    'elementCount' => $category['elementCount'],
-                    'changefreq'   => ($category['sitemapEntryId'] > 0 ? $category['changefreq'] : 'weekly'),
-                    'priority'     => ($category['sitemapEntryId'] > 0 ? $category['priority'] : 0.5),
-                ];
-            }
-        }
-        */
 
         $fields = Craft::$app->getFields()->getAllFields();
         $fieldData = [['value' => null, 'label' => '']];

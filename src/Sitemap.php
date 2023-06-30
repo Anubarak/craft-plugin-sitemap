@@ -214,6 +214,6 @@ class Sitemap extends Plugin
      */
     public function getSiteMap(): SitemapService
     {
-        return $this->sitemapService;
+        return $this->get('sitemap');
     }
 }

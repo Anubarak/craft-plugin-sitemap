@@ -11,6 +11,9 @@
 
 namespace dolphiq\sitemap\events;
 
+use craft\elements\db\ElementQuery;
+use craft\models\Site;
+use dolphiq\sitemap\records\SitemapEntry;
 use yii\base\Event;
 
 /**
@@ -24,15 +27,15 @@ class SearchElementsEvent extends Event
      *
      * @var \craft\elements\db\ElementQuery $query
      */
-    public $query;
+    public ElementQuery $query;
     /**
      * The SiteMap Entry
      *
      * @var \dolphiq\sitemap\records\SitemapEntry $siteMapEntry
      */
-    public $siteMapEntry;
+    public SitemapEntry $siteMapEntry;
     /**
      * @var \craft\models\Site $site
      */
-    public $site;
+    public Site $site;
 }

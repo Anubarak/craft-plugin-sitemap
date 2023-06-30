@@ -51,8 +51,8 @@ use yii\web\Response;
  */
 class SitemapController extends Controller
 {
-    private $_sourceRouteParams = [];
-    protected $allowAnonymous = ['index'];
+    private                  $_sourceRouteParams = [];
+    protected int|bool|array $allowAnonymous     = ['index'];
     // Public Methods
     // =========================================================================
 
@@ -108,7 +108,7 @@ class SitemapController extends Controller
             if($suffix){
                 return $this->redirect('sitemap.xml');
             }else{
-                throw new HttpException(400, 'Generate a default sitemap');
+                throw new HttpException(400, 'No sitemap found -> you need to generate it first via console command > route = sitemap');
             }
         }
 
@@ -118,36 +118,5 @@ class SitemapController extends Controller
         $headers->add('Content-Type', 'application/xml');
 
         return $simpleXml->saveXML();
-    }
-
-    private function _createEntryCategoryQuery(): Query
-    {
-        return (new Query())->select(
-                [
-
-                    'elements_sites.uri uri',
-                    'elements_sites.dateUpdated dateUpdated',
-                    'elements_sites.siteId',
-                    'sitemap_entries.changefreq changefreq',
-                    'sitemap_entries.priority priority',
-                ]
-            )
-            ->from(['{{%categories}} categories'])
-            ->innerJoin(
-                '{{%dolphiq_sitemap_entries}} sitemap_entries',
-                '[[categories.groupId]] = [[sitemap_entries.linkId]] AND [[sitemap_entries.type]] = "category"'
-            )
-            ->innerJoin(
-                '{{%categorygroups_sites}} categorygroups_sites',
-                '[[categorygroups_sites.groupId]] = [[categories.groupId]] AND [[categorygroups_sites.hasUrls]] = 1'
-            )
-            ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[categories.id]] AND [[elements.enabled]] = 1')
-            ->innerJoin(
-                '{{%elements_sites}} elements_sites',
-                '[[elements_sites.elementId]] = [[elements.id]] AND [[elements_sites.enabled]] = 1'
-            )
-            ->innerJoin('{{%sites}} sites', '[[elements_sites.siteId]] = [[sites.id]]')
-            ->andWhere(['elements.dateDeleted' => null])
-            ->groupBy(['elements_sites.id']);
     }
 }
