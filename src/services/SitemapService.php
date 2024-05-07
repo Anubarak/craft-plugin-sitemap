@@ -50,9 +50,9 @@ class SitemapService extends Component
     /**
      * Key for the project config
      */
-    public const PROJECT_CONFIG_KEY = 'dolphiq_sitemap_entries';
+    public const PROJECT_CONFIG_KEY    = 'dolphiq_sitemap_entries';
     public const EVENT_SEARCH_ELEMENTS = 'searchElementsEvent';
-    public const EVENT_POPULATE_NEWS = 'populateNewsEvent';
+    public const EVENT_POPULATE_NEWS   = 'populateNewsEvent';
     // Public Methods
     // =========================================================================
 
@@ -98,16 +98,16 @@ class SitemapService extends Component
 
         // set it in the config
         Craft::$app->getProjectConfig()->set($path, [
-                                                      'linkId'       => $uidById,
-                                                      'type'         => $record->type,
-                                                      'priority'     => $record->priority,
-                                                      'changefreq'   => $record->changefreq,
-                                                      'useCustomUrl' => $record->useCustomUrl,
-                                                      'field'        => $record->fieldId !== null ? Db::uidById(
-                                                          Table::FIELDS,
-                                                          (int) $record->fieldId
-                                                      ) : null
-                                                  ]);
+            'linkId'       => $uidById,
+            'type'         => $record->type,
+            'priority'     => $record->priority,
+            'changefreq'   => $record->changefreq,
+            'useCustomUrl' => $record->useCustomUrl,
+            'field'        => $record->fieldId !== null ? Db::uidById(
+                Table::FIELDS,
+                (int) $record->fieldId
+            ) : null
+        ]);
 
         if ($isNew) {
             $record->id = Db::idByUid(SitemapEntry::tableName(), $record->uid);
@@ -211,10 +211,12 @@ class SitemapService extends Component
         $e->config[self::PROJECT_CONFIG_KEY] = [];
         foreach ($records as $record) {
             $e->config[self::PROJECT_CONFIG_KEY][$record->uid] = [
-                'linkId'     => $this->getUidById($record),
-                'type'       => $record->type,
-                'priority'   => $record->priority,
-                'changefreq' => $record->changefreq,
+                'linkId'       => $this->getUidById($record),
+                'type'         => $record->type,
+                'priority'     => $record->priority,
+                'changefreq'   => $record->changefreq,
+                'useCustomUrl' => (bool) $record->useCustomUrl,
+                'field'        => $record->getField()->uid,
             ];
         }
     }
@@ -275,7 +277,7 @@ class SitemapService extends Component
         $baseUrl = $site->getBaseUrl() . 'sitemap_';
         foreach ($indexes as $index) {
             $subSiteMap = $this->buildSiteMap($index['sectionIds'], $site);
-            if($subSiteMap){
+            if ($subSiteMap) {
                 $url = $dom->createElement('sitemap');
                 $siteMapIndex->appendChild($url);
                 $url->appendChild($dom->createElement('loc', $baseUrl . $index['name'] . '.xml'));
@@ -310,13 +312,15 @@ class SitemapService extends Component
 
         $news = Sitemap::$plugin->getSettings()->newsSections;
         $entriesBySite = $this->_getEntries($sectionIds, $site);
-        if(empty($entriesBySite)){
+        if (empty($entriesBySite)) {
             return [];
         }
 
         $isNews = false;
-        if (empty($entriesBySite) === false && isset($entriesBySite[$site->id]) &&
-            empty($entriesBySite[$site->id]) === false) {
+        if (
+            empty($entriesBySite) === false && isset($entriesBySite[$site->id]) &&
+            empty($entriesBySite[$site->id]) === false
+        ) {
             /** @var Entry $firstOne */
             $firstOne = ArrayHelper::firstValue($entriesBySite[$site->id]);
             if ($firstOne !== null && isset($news[$firstOne->getSection()->handle])) {
@@ -358,7 +362,7 @@ class SitemapService extends Component
                 }
                 // add news information
             }
-        }else{
+        } else {
             return [];
         }
 
@@ -504,7 +508,7 @@ class SitemapService extends Component
      * Get all Entries in those sections
      *
      * @param array $sectionIds
-     * @param Site $site
+     * @param Site  $site
      *
      * @return array
      *
@@ -558,12 +562,12 @@ class SitemapService extends Component
             foreach ($entriesForSection as $element) {
                 $assets = $field !== null ? $element->{$field->handle} : null;
                 $element->attachBehavior('meta', [
-                                                   'class'        => ElementSiteMapBehavior::class,
-                                                   'priority'     => $record->priority,
-                                                   'changefreq'   => $record->changefreq,
-                                                   'siteMapAsset' => $assets !== null &&
-                                                                     empty($assets) === false ? $assets[0] : null,
-                                               ]);
+                    'class'        => ElementSiteMapBehavior::class,
+                    'priority'     => $record->priority,
+                    'changefreq'   => $record->changefreq,
+                    'siteMapAsset' => $assets !== null &&
+                                      empty($assets) === false ? $assets[0] : null,
+                ]);
                 $entries[$element->siteId][$element->id] = $element;
             }
         }
