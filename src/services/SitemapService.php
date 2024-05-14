@@ -210,13 +210,14 @@ class SitemapService extends Component
         $records = SitemapEntry::find()->all();
         $e->config[self::PROJECT_CONFIG_KEY] = [];
         foreach ($records as $record) {
+            $fieldRecord = $record->getField()->one();
             $e->config[self::PROJECT_CONFIG_KEY][$record->uid] = [
                 'linkId'       => $this->getUidById($record),
                 'type'         => $record->type,
                 'priority'     => $record->priority,
                 'changefreq'   => $record->changefreq,
                 'useCustomUrl' => (bool) $record->useCustomUrl,
-                'field'        => $record->getField()->uid,
+                'field'        => $fieldRecord?->uid,
             ];
         }
     }

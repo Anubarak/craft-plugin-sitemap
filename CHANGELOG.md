@@ -1,5 +1,10 @@
 # sitemap Changelog
 
+## 4.0.1 - 2024-05-14
+
+### fixed
+
+- fixed project config rebuild issue
 
 ## 4.0.0 - 2023-06-29
 
