@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap\services;
+namespace anubarak\sitemap\services;
 
 use Craft;
 use craft\base\Component;
@@ -24,11 +24,11 @@ use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
 use craft\models\Site;
 use DateTime;
-use dolphiq\sitemap\behaviors\ElementSiteMapBehavior;
-use dolphiq\sitemap\events\PopulateNewsEvent;
-use dolphiq\sitemap\events\SearchElementsEvent;
-use dolphiq\sitemap\records\SitemapEntry;
-use dolphiq\sitemap\Sitemap;
+use anubarak\sitemap\behaviors\ElementSiteMapBehavior;
+use anubarak\sitemap\events\PopulateNewsEvent;
+use anubarak\sitemap\events\SearchElementsEvent;
+use anubarak\sitemap\records\SitemapEntry;
+use anubarak\sitemap\Sitemap;
 use DOMDocument;
 use DOMElement;
 
@@ -59,7 +59,7 @@ class SitemapService extends Component
     /**
      * Save a new entry to the project config
      *
-     * @param \dolphiq\sitemap\records\SitemapEntry $record
+     * @param \anubarak\sitemap\records\SitemapEntry $record
      *
      * @return bool
      * @throws \yii\base\Exception
@@ -119,7 +119,7 @@ class SitemapService extends Component
     /**
      * Delete an entry from project config
      *
-     * @param \dolphiq\sitemap\records\SitemapEntry $record
+     * @param \anubarak\sitemap\records\SitemapEntry $record
      *
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException

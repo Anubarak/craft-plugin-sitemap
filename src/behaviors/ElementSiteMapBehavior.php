@@ -9,13 +9,13 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace dolphiq\sitemap\behaviors;
+namespace anubarak\sitemap\behaviors;
 
 use yii\base\Behavior;
 
 /**
  * Class ElementSiteMapBehavior
- * @package dolphiq\sitemap\behaviors
+ * @package anubarak\sitemap\behaviors
  * @since   18.09.2019
  */
 class ElementSiteMapBehavior extends Behavior

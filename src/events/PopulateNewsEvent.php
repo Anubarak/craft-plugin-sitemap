@@ -9,14 +9,14 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace dolphiq\sitemap\events;
+namespace anubarak\sitemap\events;
 
 use craft\elements\Entry;
 use yii\base\Event;
 
 /**
  * Class PopulateNewsEvent
- * @package dolphiq\sitemap\events
+ * @package anubarak\sitemap\events
  * @since   18.09.2019
  */
 class PopulateNewsEvent extends Event

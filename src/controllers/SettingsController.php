@@ -8,15 +8,15 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap\controllers;
+namespace anubarak\sitemap\controllers;
 
 use Craft;
 use craft\db\Query;
 use craft\elements\Entry;
 use craft\fields\Assets;
 use craft\web\Controller;
-use dolphiq\sitemap\records\SitemapEntry;
-use dolphiq\sitemap\Sitemap;
+use anubarak\sitemap\records\SitemapEntry;
+use anubarak\sitemap\Sitemap;
 use yii\helpers\ArrayHelper;
 
 /**

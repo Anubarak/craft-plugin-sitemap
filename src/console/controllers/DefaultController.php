@@ -9,18 +9,18 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace dolphiq\sitemap\console\controllers;
+namespace anubarak\sitemap\console\controllers;
 
 use Craft;
 use craft\console\Controller;
-use dolphiq\sitemap\Sitemap;
+use anubarak\sitemap\Sitemap;
 use yii\console\ExitCode;
 
 /**
  * Creates the sitemap.xml file
  *
  * Class DefaultController
- * @package dolphiq\sitemap\console\controllers
+ * @package anubarak\sitemap\console\controllers
  * @since   17.09.2019
  */
 class DefaultController extends Controller

@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace dolphiq\sitemap\helpers;
+namespace anubarak\sitemap\helpers;
 
 
 use Craft;

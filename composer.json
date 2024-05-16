@@ -1,8 +1,8 @@
 {
     "name": "dolphiq/sitemap",
-    "description": "Craft 4 plugin that provides an easy way to provide and manage a XML sitemap for search engines like Google and Bing",
+    "description": "Craft 5 plugin that provides an easy way to provide and manage a XML sitemap for search engines like Google and Bing",
     "type": "craft-plugin",
-    "version": "4.0.1",
+    "version": "5.0.0-RC1",
     "keywords": [
         "craft",
         "cms",
@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "php": ">=7.3.0 || ^8.0.2",
+        "php": "^8.2",
         "craftcms/cms": "^4.0.0",
         "jaybizzle/crawler-detect": "1.*",
         "ext-dom": "*"
@@ -40,11 +40,17 @@
     },
     "extra": {
         "name": "XML Sitemap",
-        "handle": "sitemap",
-        "developer": "Dolphiq",
-        "developerUrl": "https://dolphiq.nl/",
+        "handle": "secondred-sitemap",
+        "developer": "Dolphiq & Anubarak",
         "documentationUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/README.md",
         "changelogUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/CHANGELOG.md",
-        "class": "dolphiq\\sitemap\\Sitemap"
-    }
+        "class": "anubarak\\sitemap\\Sitemap"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    },
+    "prefer-stable": true
 }

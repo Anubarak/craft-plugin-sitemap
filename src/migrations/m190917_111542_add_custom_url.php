@@ -1,6 +1,6 @@
 <?php
 
-namespace dolphiq\sitemap\migrations;
+namespace anubarak\sitemap\migrations;
 
 use Craft;
 use craft\db\Migration;

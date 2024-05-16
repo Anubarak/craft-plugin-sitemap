@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap\web\assets\sitemap;
+namespace anubarak\sitemap\web\assets\sitemap;
 
 use Craft;
 use craft\web\AssetBundle;
@@ -43,7 +43,7 @@ class SitemapAsset extends AssetBundle
     public function init()
     {
         // define the path that your publishable resources live
-        $this->sourcePath = "@dolphiq/sitemap/web/assets/sitemap/dist";
+        $this->sourcePath = "@anubarak/sitemap/web/assets/sitemap/dist";
 
         // define the dependencies
         $this->depends = [

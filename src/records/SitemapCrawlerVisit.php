@@ -8,9 +8,9 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap\records;
+namespace anubarak\sitemap\records;
 
-use dolphiq\sitemap\Sitemap;
+use anubarak\sitemap\Sitemap;
 
 use Craft;
 use craft\db\ActiveRecord;

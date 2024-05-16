@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap\records;
+namespace anubarak\sitemap\records;
 
 use craft\db\ActiveRecord;
 use craft\records\CategoryGroup;

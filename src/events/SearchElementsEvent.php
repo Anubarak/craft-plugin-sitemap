@@ -9,11 +9,11 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace dolphiq\sitemap\events;
+namespace anubarak\sitemap\events;
 
 use craft\elements\db\ElementQuery;
 use craft\models\Site;
-use dolphiq\sitemap\records\SitemapEntry;
+use anubarak\sitemap\records\SitemapEntry;
 use yii\base\Event;
 
 /**
@@ -31,7 +31,7 @@ class SearchElementsEvent extends Event
     /**
      * The SiteMap Entry
      *
-     * @var \dolphiq\sitemap\records\SitemapEntry $siteMapEntry
+     * @var \anubarak\sitemap\records\SitemapEntry $siteMapEntry
      */
     public SitemapEntry $siteMapEntry;
     /**

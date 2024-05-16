@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap\controllers;
+namespace anubarak\sitemap\controllers;
 
 use Craft;
 use craft\db\Query;
@@ -18,10 +18,10 @@ use craft\events\CancelableEvent;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
-use dolphiq\sitemap\helpers\PathHelper;
-use dolphiq\sitemap\models\SitemapEntryModel;
-use dolphiq\sitemap\records\SitemapCrawlerVisit;
-use dolphiq\sitemap\Sitemap;
+use anubarak\sitemap\helpers\PathHelper;
+use anubarak\sitemap\models\SitemapEntryModel;
+use anubarak\sitemap\records\SitemapCrawlerVisit;
+use anubarak\sitemap\Sitemap;
 use DOMDocument;
 use Exception;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;

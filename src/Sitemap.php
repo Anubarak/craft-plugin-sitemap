@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace dolphiq\sitemap;
+namespace anubarak\sitemap;
 
 use Craft;
 use craft\base\Plugin;
@@ -16,8 +16,8 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\ProjectConfig;
 use craft\web\UrlManager;
-use dolphiq\sitemap\models\Settings;
-use dolphiq\sitemap\services\SitemapService;
+use anubarak\sitemap\models\Settings;
+use anubarak\sitemap\services\SitemapService;
 use yii\base\Event;
 
 /**
@@ -36,7 +36,7 @@ use yii\base\Event;
  *
  * @property  SitemapService                          $sitemapService
  * @property mixed                                    $settingsResponse
- * @property \dolphiq\sitemap\services\SitemapService $siteMap
+ * @property \anubarak\sitemap\services\SitemapService $siteMap
  * @property  Settings                                $settings
  * @method    Settings getSettings()
  */
@@ -210,7 +210,7 @@ class Sitemap extends Plugin
     /**
      * Returns the Service to handle project config
      *
-     * @return \dolphiq\sitemap\services\SitemapService
+     * @return \anubarak\sitemap\services\SitemapService
      */
     public function getSiteMap(): SitemapService
     {

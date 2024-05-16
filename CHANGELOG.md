@@ -1,5 +1,11 @@
 # sitemap Changelog
 
+## 5.0.0-RC1 - 2024-05-16
+
+### added
+
+- first install attempt
+
 ## 4.0.1 - 2024-05-14
 
 ### fixed
