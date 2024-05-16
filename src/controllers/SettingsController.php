@@ -61,10 +61,10 @@ class SettingsController extends Controller
      */
     private function _getSections(): array
     {
-        $sections = Craft::$app->getSections()->getAllSections();
+        $sections = Craft::$app->getEntries()->getAllSections();
         $response = [];
 
-        $allSectionIds = Craft::$app->getSections()->getAllSectionIds();
+        $allSectionIds = Craft::$app->getEntries()->getAllSectionIds();
         $siteMapRecords = ArrayHelper::index(
             SitemapEntry::find()->where(
                 [
@@ -172,7 +172,7 @@ class SettingsController extends Controller
             // 'allRedirects' => $allRedirects
         ];
 
-        return $this->renderTemplate('sitemap/settings', $variables);
+        return $this->renderTemplate('secondred-sitemap/settings', $variables);
     }
 
     /**

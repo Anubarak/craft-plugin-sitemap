@@ -528,9 +528,13 @@ class SitemapService extends Component
         //@formatter:on
 
         $entries = [];
-        $entryTypes = ArrayHelper::getColumn(Craft::$app->getSections()->getEntryTypesByHandle('link'), 'id');
-        if (empty($entryTypes) === false) {
-            ArrayHelper::prependOrAppend($entryTypes, 'not', true);
+        $entryType = Craft::$app->getEntries()->getEntryTypeByHandle('link');
+
+        if (empty($entryType) === false) {
+            $entryTypes = [
+                'not',
+                $entryType->id
+            ];
         } else {
             $entryTypes = null;
         }
@@ -561,13 +565,12 @@ class SitemapService extends Component
             $entriesForSection = $event->query->all();
 
             foreach ($entriesForSection as $element) {
-                $assets = $field !== null ? $element->{$field->handle} : null;
+                $asset = $field !== null ? $element->getFieldValue($field->handle)->one() : null;
                 $element->attachBehavior('meta', [
                     'class'        => ElementSiteMapBehavior::class,
                     'priority'     => $record->priority,
                     'changefreq'   => $record->changefreq,
-                    'siteMapAsset' => $assets !== null &&
-                                      empty($assets) === false ? $assets[0] : null,
+                    'siteMapAsset' => $asset,
                 ]);
                 $entries[$element->siteId][$element->id] = $element;
             }

@@ -108,7 +108,7 @@ class SitemapController extends Controller
             if($suffix){
                 return $this->redirect('sitemap.xml');
             }else{
-                throw new HttpException(400, 'No sitemap found -> you need to generate it first via console command > route = sitemap');
+                throw new HttpException(400, 'No sitemap found -> you need to generate it first via console command „php craft secondred-sitemap“');
             }
         }
 

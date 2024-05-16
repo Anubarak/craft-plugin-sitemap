@@ -29,7 +29,7 @@
 
 {# The content of the CP Section#}
 {% block content %}
-    <input type="hidden" name="action" value="sitemap/settings/save-sitemap">
+    <input type="hidden" name="action" value="secondred-sitemap/settings/save-sitemap">
 
     {{ redirectInput('settings/sitemap') }}
 
@@ -122,12 +122,12 @@ Please note that the priority you assign to a page is not likely to influence th
                 small: true
             },
             useCustomUrl: {
-                heading: 'Use Custom URL'|t('sitemap'),
+                heading: 'Use Custom URL'|t('secondred-sitemap'),
                 type: 'lightswitch',
-                info: "If the XML should be splitted into different files"|t('sitemap'),
+                info: "If the XML should be splitted into different files"|t('secondred-sitemap'),
             },
             fieldId: {
-                heading : 'Image Field'|t('sitemap'),
+                heading : 'Image Field'|t('secondred-sitemap'),
                 info: "The asset that should be used as preview",
                 type: 'select',
                 options: fields

@@ -34,10 +34,10 @@ use yii\base\Event;
  * @package   Sitemap
  * @since     1.0.0
  *
- * @property  SitemapService                          $sitemapService
- * @property mixed                                    $settingsResponse
+ * @property  SitemapService                           $sitemapService
+ * @property mixed                                     $settingsResponse
  * @property \anubarak\sitemap\services\SitemapService $siteMap
- * @property  Settings                                $settings
+ * @property  Settings                                 $settings
  * @method    Settings getSettings()
  */
 class Sitemap extends Plugin
@@ -55,7 +55,7 @@ class Sitemap extends Plugin
     // Public Methods
     // =========================================================================
 
-    public bool $hasCpSection = true;
+    public bool $hasCpSection  = true;
     public bool $hasCpSettings = true;
     // table schema version
     public string $schemaVersion = '1.0.4';
@@ -88,15 +88,19 @@ class Sitemap extends Plugin
         $rules = [
             // register routes for the settings tab
             'settings/sitemap'              => [
-                'route'  => 'sitemap/settings',
+                'route'  => 'secondred-sitemap/settings',
+                'params' => ['source' => 'CpSettings']
+            ],
+            'secondred-sitemap'             => [
+                'route'  => 'secondred-sitemap/settings',
                 'params' => ['source' => 'CpSettings']
             ],
             'sitemap'                       => [
-                'route'  => 'sitemap/settings',
+                'route'  => 'secondred-sitemap/settings',
                 'params' => ['source' => 'CpSettings']
             ],
             'settings/sitemap/save-sitemap' => [
-                'route'  => 'sitemap/settings/save-sitemap',
+                'route'  => 'secondred-sitemap/settings/save-sitemap',
                 'params' => ['source' => 'CpSettings']
             ],
         ];
@@ -141,7 +145,7 @@ class Sitemap extends Plugin
             static function(RegisterUrlRulesEvent $event) {
                 $event->rules[] = [
                     'pattern'  => 'sitemap<suffix:[a-zA-Z_-].*>.xml',
-                    'route'    => 'sitemap/sitemap/index',
+                    'route'    => 'secondred-sitemap/sitemap/index',
                     'defaults' => [
                         'suffix' => '',
                     ]
@@ -151,12 +155,12 @@ class Sitemap extends Plugin
 
         $path = SitemapService::PROJECT_CONFIG_KEY . '.{uid}';
         Craft::$app->projectConfig->onAdd($path, [$this->getSiteMap(), 'handleChangedSiteMapEntry'])->onUpdate(
-                $path,
-                [
-                    $this->getSiteMap(),
-                    'handleChangedSiteMapEntry'
-                ]
-            )->onRemove($path, [$this->getSiteMap(), 'handleDeletedSiteMapEntry']);
+            $path,
+            [
+                $this->getSiteMap(),
+                'handleChangedSiteMapEntry'
+            ]
+        )->onRemove($path, [$this->getSiteMap(), 'handleDeletedSiteMapEntry']);
 
         Event::on(
             ProjectConfig::class,
@@ -166,13 +170,12 @@ class Sitemap extends Plugin
 
         Craft::info(
             Craft::t(
-                'sitemap',
+                'secondred-sitemap',
                 '{name} plugin loaded',
                 ['name' => $this->name]
             ),
             __METHOD__
         );
-
     }
 
     // Protected Methods
@@ -200,7 +203,7 @@ class Sitemap extends Plugin
     protected function settingsHtml(): string
     {
         return Craft::$app->view->renderTemplate(
-            'sitemap/settings',
+            'secondred-sitemap/settings',
             [
                 'settings' => $this->getSettings()
             ]
