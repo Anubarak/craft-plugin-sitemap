@@ -32,159 +32,56 @@ use craft\db\Migration;
  */
 class Install extends Migration
 {
-    // Public Properties
-    // =========================================================================
-
     /**
-     * @var string The database driver to use
-     */
-    public $driver;
-
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * This method contains the logic to be executed when applying this migration.
-     * This method differs from [[up()]] in that the DB logic implemented here will
-     * be enclosed within a DB transaction.
-     * Child classes may implement this method instead of [[up()]] if the DB logic
-     * needs to be within a transaction.
-     *
-     * @return boolean return a false value to indicate the migration fails
-     * and should not proceed further. All other return values mean the migration succeeds.
+     * @inheritdoc
      */
     public function safeUp()
     {
-        $this->driver = Craft::$app->getConfig()->getDb()->driver;
-        if ($this->createTables()) {
-            $this->createIndexes();
-            $this->addForeignKeys();
-            // Refresh the db schema caches
-            Craft::$app->db->schema->refresh();
-            $this->insertDefaultData();
-        }
-
-        return true;
-    }
-
-    /**
-     * This method contains the logic to be executed when removing this migration.
-     * This method differs from [[down()]] in that the DB logic implemented here will
-     * be enclosed within a DB transaction.
-     * Child classes may implement this method instead of [[down()]] if the DB logic
-     * needs to be within a transaction.
-     *
-     * @return boolean return a false value to indicate the migration fails
-     * and should not proceed further. All other return values mean the migration succeeds.
-     */
-    public function safeDown()
-    {
-        $this->driver = Craft::$app->getConfig()->getDb()->driver;
-        $this->removeTables();
-
-        return true;
-    }
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * Creates the tables needed for the Records used by the plugin
-     *
-     * @return bool
-     */
-    protected function createTables()
-    {
-        $tablesCreated = false;
-
-        // sitemap_sitemaprecord table
-        $tableSchema = Craft::$app->db->schema->getTableSchema('{{%dolphiq_sitemap_entries}}');
-        if ($tableSchema === null) {
-            $tablesCreated = true;
+        if (!$this->db->tableExists('{{%dolphiq_sitemap_entries}}')) {
             $this->createTable(
                 '{{%dolphiq_sitemap_entries}}',
                 [
-                    'id' => $this->primaryKey(),
-                    'dateCreated' => $this->dateTime()->notNull(),
-                    'dateUpdated' => $this->dateTime()->notNull(),
-                    'uid' => $this->uid(),
-                    // Custom columns in the table
-                    'linkId' => $this->integer()->notNull(),
+                    'id'           => $this->primaryKey(),
+                    'linkId'       => $this->integer()->notNull(),
                     'useCustomUrl' => $this->boolean(),
-                    'fieldId' => $this->integer(),
-                    'type' => $this->string(30)->notNull()->defaultValue(''),
-                    'priority' => $this->double(2)->notNull()->defaultValue(0.5),
-                    'changefreq' => $this->string(30)->notNull()->defaultValue(''),
+                    'fieldId'      => $this->integer(),
+                    'type'         => $this->string(30)->notNull()->defaultValue(''),
+                    'priority'     => $this->double(2)->notNull()->defaultValue(0.5),
+                    'changefreq'   => $this->string(30)->notNull()->defaultValue(''),
+                    'dateCreated'  => $this->dateTime()->notNull(),
+                    'dateUpdated'  => $this->dateTime()->notNull(),
+                    'uid'          => $this->uid(),
                 ]
             );
-        }
 
-        $this->addForeignKey(
-            null,
-            '{{%dolphiq_sitemap_entries}}',
-            ['fieldId'],
-            '{{%fields}}',
-            ['id'],
-            'CASCADE'
-        );
+            $this->addForeignKey(
+                null,
+                '{{%dolphiq_sitemap_entries}}',
+                ['fieldId'],
+                '{{%fields}}',
+                ['id'],
+                'CASCADE'
+            );
 
-        return $tablesCreated;
-    }
-
-    /**
-     * Creates the indexes needed for the Records used by the plugin
-     *
-     * @return void
-     */
-    protected function createIndexes()
-    {
-    // sitemap_sitemaprecord table
-        $this->createIndex(
-            $this->db->getIndexName(
+            $this->createIndex(
+                'dolphiq_sitemap_entries_idx',
                 '{{%dolphiq_sitemap_entries}}',
                 ['type', 'linkId'],
                 true
-            ),
-            '{{%dolphiq_sitemap_entries}}',
-            ['type', 'linkId'],
-            true
-        );
-        // Additional commands depending on the db driver
-        switch ($this->driver) {
-            case DbConfig::DRIVER_MYSQL:
-                break;
-            case DbConfig::DRIVER_PGSQL:
-                break;
+            );
         }
+
+        return true;
     }
 
     /**
-     * Creates the foreign keys needed for the Records used by the plugin
-     *
-     * @return void
+     * @inheritdoc
      */
-    protected function addForeignKeys()
+    public function safeDown()
     {
-
-    }
-
-    /**
-     * Populates the DB with the default data.
-     *
-     * @return void
-     */
-    protected function insertDefaultData()
-    {
-    }
-
-    /**
-     * Removes the tables needed for the Records used by the plugin
-     *
-     * @return void
-     */
-    protected function removeTables()
-    {
-    // sitemap_sitemaprecord table
         $this->dropTableIfExists('{{%dolphiq_sitemap_entries}}');
+
+        return true;
     }
 }
+
