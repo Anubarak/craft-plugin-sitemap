@@ -11,6 +11,7 @@
 
 namespace anubarak\sitemap\services;
 
+use anubarak\sitemap\models\SitemapIndex;
 use Craft;
 use craft\base\Component;
 use craft\base\ElementInterface;
@@ -102,7 +103,6 @@ class SitemapService extends Component
             'type'         => $record->type,
             'priority'     => $record->priority,
             'changefreq'   => $record->changefreq,
-            'useCustomUrl' => $record->useCustomUrl,
             'field'        => $record->fieldId !== null ? Db::uidById(
                 Table::FIELDS,
                 (int) $record->fieldId
@@ -170,7 +170,6 @@ class SitemapService extends Component
         $record->type = $event->newValue['type'];
         $record->priority = $event->newValue['priority'];
         $record->changefreq = $event->newValue['changefreq'];
-        $record->useCustomUrl = $event->newValue['useCustomUrl'];
         $record->fieldId = $event->newValue['field'] !== null ? Db::idByUid(
             Table::FIELDS,
             $event->newValue['field']
@@ -216,7 +215,6 @@ class SitemapService extends Component
                 'type'         => $record->type,
                 'priority'     => $record->priority,
                 'changefreq'   => $record->changefreq,
-                'useCustomUrl' => (bool) $record->useCustomUrl,
                 'field'        => $fieldRecord?->uid,
             ];
         }
@@ -248,17 +246,19 @@ class SitemapService extends Component
         // grab the different sections
         /** @var SitemapEntry[] $records */
         $records = SitemapEntry::find()->where(['type' => 'section'])->with(['section'])->all();
-        $indexes = [
-            ['name' => 'default', 'sectionIds' => []]
-        ];
+        $indexes = [];
+
+        $max = Sitemap::$plugin->getSettings()->maxEntriesPerSitemap;
         foreach ($records as $record) {
-            if ((bool) $record->useCustomUrl === true) {
-                $indexes[] = [
-                    'name'       => $record->section->handle,
-                    'sectionIds' => [(int) $record->linkId]
-                ];
-            } else {
-                $indexes[0]['sectionIds'][] = (int) $record->linkId;
+            $count = $this->getEntryCount($record, $site);
+            foreach ($this->processChunks($count, $max) as [$start, $end]) {
+                $indexes[] = new SitemapIndex(
+                    $record,
+                    $record->section->handle,
+                    [(int) $record->linkId],
+                    $start,
+                    $max,
+                );
             }
         }
 
@@ -277,13 +277,13 @@ class SitemapService extends Component
         FileHelper::createDirectory($path);
         $baseUrl = $site->getBaseUrl() . 'sitemap_';
         foreach ($indexes as $index) {
-            $subSiteMap = $this->buildSiteMap($index['sectionIds'], $site);
+            $subSiteMap = $this->buildSiteMap($index, $site);
             if ($subSiteMap) {
                 $url = $dom->createElement('sitemap');
                 $siteMapIndex->appendChild($url);
-                $url->appendChild($dom->createElement('loc', $baseUrl . $index['name'] . '.xml'));
+                $url->appendChild($dom->createElement('loc', $baseUrl . $index->getName() . '.xml'));
 
-                $subSiteMap['siteMap']->save($path . 'sitemap_' . $site->id . '_' . $index['name'] . '.xml');
+                $subSiteMap['siteMap']->save($path . 'sitemap_' . $site->id . '_' . $index->getName() . '.xml');
                 $url->appendChild($dom->createElement('lastmod', $subSiteMap['lastEdited']));
             }
         }
@@ -297,22 +297,23 @@ class SitemapService extends Component
     /**
      * buildSiteMap
      *
-     * @param array              $sectionIds
-     * @param \craft\models\Site $site
+     * @param \anubarak\sitemap\models\SitemapIndex $sitemapIndex
+     * @param \craft\models\Site                    $site
      *
      * @return array
      *
+     * @throws \DOMException
      * @throws \yii\base\InvalidConfigException
      * @since  17.09.2019
      * @author Robin Schambach
      */
-    public function buildSiteMap(array $sectionIds, Site $site): array
+    public function buildSiteMap(SitemapIndex $sitemapIndex, Site $site): array
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
         $news = Sitemap::$plugin->getSettings()->newsSections;
-        $entriesBySite = $this->_getEntries($sectionIds, $site);
+        $entriesBySite = $this->_getEntries($sitemapIndex, $site);
         if (empty($entriesBySite)) {
             return [];
         }
@@ -371,10 +372,13 @@ class SitemapService extends Component
         $query = Entry::find()
             ->siteId('*')
             ->orderBy(['dateUpdated' => SORT_DESC])
-            ->sectionId($sectionIds);
+            ->sectionId($sitemapIndex->getSectionIds());
         //@formatter:on
 
-        $event = new SearchElementsEvent(['query' => $query]);
+        $event = new SearchElementsEvent([
+            'query' => $query,
+            'site'  => $site
+        ]);
         if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
             $this->trigger(self::EVENT_SEARCH_ELEMENTS, $event);
         }
@@ -516,17 +520,8 @@ class SitemapService extends Component
      * @author Robin Schambach
      * @since  17.09.2019
      */
-    private function _getEntries(array $sectionIds, Site $site): array
+    private function _getEntries(SitemapIndex $sitemapIndex, Site $site): array
     {
-        /** @var SitemapEntry[] $records */
-        //@formatter:off
-        $records = SitemapEntry::find()
-            ->where(['type' => 'section'])
-            ->andWhere(['IN', 'linkId', $sectionIds])
-            ->with(['section', 'field'])
-            ->all();
-        //@formatter:on
-
         $entries = [];
         $entryType = Craft::$app->getEntries()->getEntryTypeByHandle('link');
 
@@ -540,42 +535,108 @@ class SitemapService extends Component
         }
         $newsSections = Sitemap::$plugin->getSettings()->newsSections;
 
-        foreach ($records as $record) {
+        $section = null;
+        $field = null;
+        $record = $sitemapIndex->getSitemapEntry();
+        if ($record) {
             $field = $record->field;
-            //@formatter:off
-            $query = Entry::find()
-                ->siteId('*')
-                ->typeId($entryTypes)
-                ->sectionId($record->section->id);
-            //@formatter:on
-            if ($field !== null) {
-                $query->with($field->handle);
-            }
+            $section = $record->section;
+        }
 
-            // check for news...
-            if (isset($newsSections[$record->section->handle]) === true) {
-                Craft::configure($query, $newsSections[$record->section->handle]);
-            }
+        $query = Entry::find()
+            ->siteId('*')
+            ->typeId($entryTypes)
+            ->sectionId($sitemapIndex->getSectionIds());
+        // check for news...
+        if ($section && isset($newsSections[$section->handle]) === true) {
+            Craft::configure($query, $newsSections[$section->handle]);
+        }
 
-            $event = new SearchElementsEvent(['query' => $query, 'siteMapEntry' => $record, 'site' => $site]);
-            if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
-                $this->trigger(self::EVENT_SEARCH_ELEMENTS, $event);
-            }
-            /** @var \craft\base\Element[] $entriesForSection */
-            $entriesForSection = $event->query->all();
+        $event = new SearchElementsEvent([
+            'query'        => $query,
+            'siteMapEntry' => $record,
+            'site'         => $site
+        ]);
 
-            foreach ($entriesForSection as $element) {
-                $asset = $field !== null ? $element->getFieldValue($field->handle)->one() : null;
-                $element->attachBehavior('meta', [
-                    'class'        => ElementSiteMapBehavior::class,
-                    'priority'     => $record->priority,
-                    'changefreq'   => $record->changefreq,
-                    'siteMapAsset' => $asset,
-                ]);
-                $entries[$element->siteId][$element->id] = $element;
-            }
+        if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
+            $this->trigger(self::EVENT_SEARCH_ELEMENTS, $event);
+        }
+
+
+        if ($sitemapIndex->getLimit()) {
+            $event->query->limit($sitemapIndex->getLimit());
+        }
+        if ($sitemapIndex->getOffset()) {
+            $event->query->offset($sitemapIndex->getOffset());
+        }
+
+        if ($field !== null) {
+            $event->query->andWith($field->handle);
+        }
+
+        /** @var \craft\base\Element[] $entriesForSection */
+        $entriesForSection = $event->query->all();
+        foreach ($entriesForSection as $element) {
+            $asset = $field !== null ? $element->getFieldValue($field->handle)->one() : null;
+            $element->attachBehavior('meta', [
+                'class'        => ElementSiteMapBehavior::class,
+                'priority'     => $record->priority,
+                'changefreq'   => $record->changefreq,
+                'siteMapAsset' => $asset,
+            ]);
+            $entries[$element->siteId][$element->id] = $element;
         }
 
         return $entries;
+    }
+
+    protected function getEntryCount(SitemapEntry|null $sitemapEntry, Site $site, array $sectionIds = []): int
+    {
+        $query = Entry::find()
+            ->siteId($site->id);
+        if ($sectionIds) {
+            $query->sectionId($sectionIds);
+        }
+
+        if ($sitemapEntry) {
+            $query->sectionId($sitemapEntry->section->id);
+        }
+
+        $event = new SearchElementsEvent([
+            'query'        => $query,
+            'siteMapEntry' => $sitemapEntry,
+            'site'         => $site
+        ]);
+        if ($this->hasEventHandlers(self::EVENT_SEARCH_ELEMENTS)) {
+            $this->trigger(self::EVENT_SEARCH_ELEMENTS, $event);
+        }
+
+        return $event->query->count();
+    }
+
+    /**
+     * @param int $totalElements
+     * @param int $maxChunkSize
+     *
+     * @return array
+     */
+    protected function processChunks(int $totalElements, int $maxChunkSize): array
+    {
+        // Calculate the total number of chunks
+        $totalChunks = ceil($totalElements / $maxChunkSize);
+
+        $junks = [];
+
+        for ($chunkIndex = 0; $chunkIndex < $totalChunks; $chunkIndex++) {
+            // Calculate the start index for the current chunk
+            $start = $chunkIndex * $maxChunkSize;
+
+            // Calculate the end index for the current chunk
+            $end = min($start + $maxChunkSize, $totalElements);
+
+            $junks[] = [$start, $end];
+        }
+
+        return $junks;
     }
 }

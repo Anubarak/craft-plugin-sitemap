@@ -1,5 +1,11 @@
 # sitemap Changelog
 
+## 5.0.0-RC6 - 2025-01-15
+
+### removed
+
+- always use a custom sitemap for each section, do not combine them
+
 ## 5.0.0-RC1 - 2024-05-16
 
 ### added

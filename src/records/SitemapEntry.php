@@ -38,7 +38,6 @@ use yii\db\ActiveQuery;
  * @property string                                   $changefreq
  * @property \yii\db\ActiveQuery                      $category
  * @property \yii\db\ActiveQuery|Section              $section
- * @property bool                                     $useCustomUrl
  * @property \yii\db\ActiveQuery|\craft\records\Field $field
  * @property int                                      $fieldId
  */

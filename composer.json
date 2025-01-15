@@ -2,7 +2,7 @@
     "name": "anubarak/sitemap",
     "description": "Craft 5 plugin that provides an easy way to provide and manage a XML sitemap for search engines like Google and Bing",
     "type": "craft-plugin",
-    "version": "5.0.0-RC5",
+    "version": "5.0.0-RC6",
     "keywords": [
         "craft",
         "cms",

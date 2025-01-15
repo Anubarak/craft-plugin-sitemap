@@ -43,7 +43,6 @@ class Install extends Migration
                 [
                     'id'           => $this->primaryKey(),
                     'linkId'       => $this->integer()->notNull(),
-                    'useCustomUrl' => $this->boolean(),
                     'fieldId'      => $this->integer(),
                     'type'         => $this->string(30)->notNull()->defaultValue(''),
                     'priority'     => $this->double(2)->notNull()->defaultValue(0.5),

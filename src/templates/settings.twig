@@ -52,7 +52,6 @@
                     priority: section.priority,
                     changefreq : section.changefreq,
                     entries : section.elementCount,
-                    useCustomUrl : section.useCustomUrl,
                     fieldId: section.fieldId
                 }
             }) %}
@@ -120,11 +119,6 @@ Please note that the priority you assign to a page is not likely to influence th
                     {label: '1.0', value: 1.0}
                 ],
                 small: true
-            },
-            useCustomUrl: {
-                heading: 'Use Custom URL'|t('secondred-sitemap'),
-                type: 'lightswitch',
-                info: "If the XML should be splitted into different files"|t('secondred-sitemap'),
             },
             fieldId: {
                 heading : 'Image Field'|t('secondred-sitemap'),

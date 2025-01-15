@@ -92,8 +92,7 @@ class SettingsController extends Controller
             $siteMapRecord = $siteMapRecords[$section->id] ?? [
                     'changefreq' => 'weekly',
                     'priority'   => '0.5',
-                    'id'         => null,
-                    'useCustomUrl'  => false
+                    'id'         => null
                 ];
             $response[] = [
                 'id'             => (int) $section->id,
@@ -106,7 +105,6 @@ class SettingsController extends Controller
                 'sitemapEntryId' => $siteMapRecord['id'],
                 'changefreq'     => $siteMapRecord['changefreq'],
                 'priority'       => $siteMapRecord['priority'],
-                'useCustomUrl'      => $siteMapRecord['useCustomUrl']
             ];
         }
 
@@ -145,7 +143,6 @@ class SettingsController extends Controller
                     'elementCount' => $section['elementCount'],
                     'changefreq'   => $section['changefreq'],
                     'priority'     => $section['priority'],
-                    'useCustomUrl' => (bool)$section['useCustomUrl'],
                     'fieldId'      => $section['fieldId']
                 ];
             }
@@ -219,7 +216,6 @@ class SettingsController extends Controller
                         $sitemapEntry->type = 'section';
                         $sitemapEntry->priority = $entry['priority'];
                         $sitemapEntry->changefreq = $entry['changefreq'];
-                        $sitemapEntry->useCustomUrl = $entry['useCustomUrl'] ?? false;
                         $sitemapEntry->fieldId = $entry['fieldId'] ?? null;
                         $siteMapService->saveEntry($sitemapEntry);
                         $allSectionIds[] = $id;

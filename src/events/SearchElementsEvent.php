@@ -31,9 +31,9 @@ class SearchElementsEvent extends Event
     /**
      * The SiteMap Entry
      *
-     * @var \anubarak\sitemap\records\SitemapEntry $siteMapEntry
+     * @var \anubarak\sitemap\records\SitemapEntry|null $siteMapEntry
      */
-    public SitemapEntry $siteMapEntry;
+    public SitemapEntry|null $siteMapEntry = null;
     /**
      * @var \craft\models\Site $site
      */

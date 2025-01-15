@@ -46,4 +46,6 @@ class Settings extends Model
      * @var bool $useProjectConfig
      */
     public bool $useProjectConfig = false;
+
+    public int $maxEntriesPerSitemap = 1000;
 }
