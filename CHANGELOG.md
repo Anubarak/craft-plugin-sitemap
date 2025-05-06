@@ -1,5 +1,11 @@
 # sitemap Changelog
 
+## 5.0.0 - 2025-05-08
+
+### removed
+
+- remove typed data
+
 ## 5.0.0-RC6 - 2025-01-15
 
 ### removed

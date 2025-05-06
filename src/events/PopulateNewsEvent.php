@@ -34,5 +34,5 @@ class PopulateNewsEvent extends Event
      *
      * @var array $data
      */
-    public array $data;
+    public $data = [];
 }
