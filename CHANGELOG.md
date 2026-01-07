@@ -1,5 +1,11 @@
 # sitemap Changelog
 
+## 4.0.2 - 2026-01-07
+
+### changed
+
+- in case of alternate links -> add self links as well
+
 ## 4.0.1 - 2024-05-14
 
 ### fixed
