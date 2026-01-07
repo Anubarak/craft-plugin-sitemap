@@ -1,5 +1,11 @@
 # sitemap Changelog
 
+## 5.0.1 - 2026-01-07
+
+### changed
+
+- in case of alternate links → add self link as well
+
 ## 5.0.0 - 2025-05-08
 
 ### removed

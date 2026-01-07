@@ -445,6 +445,13 @@ class SitemapService extends Component
                 $alternateLink->setAttribute('href', $alternateLoc);
                 $url->appendChild($alternateLink);
             }
+
+            // add self
+            $alternateLink = $dom->createElementNS('http://www.w3.org/1999/xhtml', 'xhtml:link');
+            $alternateLink->setAttribute('rel', 'alternate');
+            $alternateLink->setAttribute('hreflang', $element->getSite()->getLanguage());
+            $alternateLink->setAttribute('href', $element->getUrl());
+            $url->appendChild($alternateLink);
         }
 
         // add images

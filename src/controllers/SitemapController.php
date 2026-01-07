@@ -103,7 +103,7 @@ class SitemapController extends Controller
         // only default route
         $name = 'sitemap_' . $site->id  . $suffix . '.xml';
         if(file_exists($path . $name)){
-            $simpleXml = simplexml_load_string(file_get_contents($path . $name));
+            $xmlString = file_get_contents($path . $name);
         }else{
             if($suffix){
                 return $this->redirect('sitemap.xml');
@@ -112,11 +112,9 @@ class SitemapController extends Controller
             }
         }
 
-        $response = Craft::$app->response;
-        $response->format = Response::FORMAT_RAW;
-        $headers = $response->getHeaders();
-        $headers->add('Content-Type', 'application/xml');
+        $this->response->format = Response::FORMAT_RAW;
+        $this->response->getHeaders()->add('Content-Type', 'application/xml');
 
-        return $simpleXml->saveXML();
+        return $xmlString;
     }
 }
