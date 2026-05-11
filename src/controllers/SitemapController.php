@@ -15,6 +15,7 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\elements\Entry;
 use craft\events\CancelableEvent;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
@@ -103,6 +104,15 @@ class SitemapController extends Controller
         // only default route
         $name = 'sitemap_' . $site->id  . $suffix . '.xml';
         if(file_exists($path . $name)){
+            $date = FileHelper::lastModifiedTime($path . $name);
+            $date = DateTimeHelper::toDateTime($date);
+            // older than a week? regenerate by force
+            $now = new \DateTime();
+            if($now->modify('-1 week') > $date){
+                // rebuild
+                Sitemap::getInstance()->getSiteMap()->buildIndexFile($site);
+            }
+
             $xmlString = file_get_contents($path . $name);
         }else{
             if($suffix){
