@@ -8,12 +8,9 @@
  * @copyright Copyright (c) 2017 Johan Zandstra
  */
 
-namespace anubarak\sitemap\models;
+namespace Anubarak\Sitemap;
 
-use anubarak\sitemap\Sitemap;
-
-use Craft;
-use craft\base\Model;
+use CraftCms\Cms\Plugin\PluginSettings;
 
 /**
  * Sitemap Settings Model
@@ -29,23 +26,7 @@ use craft\base\Model;
  * @package   Sitemap
  * @since     1.0.0
  */
-class Settings extends Model
+class Settings extends PluginSettings
 {
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * Special Criteria for news section
-     *
-     * @var array $newsSections
-     */
-    public array $newsSections = [];
-    /**
-     * Use the project-config or not
-     *
-     * @var bool $useProjectConfig
-     */
-    public bool $useProjectConfig = false;
-
     public int $maxEntriesPerSitemap = 1000;
 }

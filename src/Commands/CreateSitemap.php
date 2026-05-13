@@ -9,22 +9,26 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace anubarak\sitemap\console\controllers;
+namespace Anubarak\Sitemap\Commands;
 
 use Craft;
 use craft\console\Controller;
-use anubarak\sitemap\Sitemap;
+use Anubarak\Sitemap\Plugin;
+use Illuminate\Console\Command;
 use yii\console\ExitCode;
 
 /**
  * Creates the sitemap.xml file
  *
  * Class DefaultController
- * @package anubarak\sitemap\console\controllers
+ * @package Anubarak\Sitemap\console\controllers
  * @since   17.09.2019
  */
-class DefaultController extends Controller
+class CreateSitemap extends Command
 {
+    protected $signature   = 'sitemap:create';
+    protected $description = 'Create a new sitemap for each site';
+
     /**
      * Default Action, creates the siteMap
      *
@@ -39,7 +43,7 @@ class DefaultController extends Controller
         $sites = Craft::$app->getSites()->getAllSites();
         foreach ($sites as $site){
             if($site->hasUrls && $site->getBaseUrl()){
-                Sitemap::getInstance()->getSiteMap()->buildIndexFile($site);
+                Plugin::getInstance()->getSiteMap()->buildIndexFile($site);
             }
         }
 

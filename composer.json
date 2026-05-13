@@ -1,56 +1,61 @@
 {
-    "name": "anubarak/sitemap",
-    "description": "Craft 5 plugin that provides an easy way to provide and manage a XML sitemap for search engines like Google and Bing",
-    "type": "craft-plugin",
-    "version": "5.0.1",
-    "keywords": [
-        "craft",
-        "cms",
-        "craftcms",
-        "craft-plugin",
-        "sitemap",
-        "seo",
-        "sitemap.xml",
-        "webmaster tools"
-    ],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Dolphiq",
-            "email": "info@dolphiq.nl",
-            "homepage": "https://dolphiq.nl/"
-        }
-    ],
-    "require": {
-        "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
-        "jaybizzle/crawler-detect": "1.*",
-        "ext-dom": "*"
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-          "anubarak\\sitemap\\": "src/"
-        }
-    },
-    "extra": {
-        "name": "XML Sitemap",
-        "handle": "secondred-sitemap",
-        "developer": "Dolphiq & Anubarak",
-        "documentationUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/README.md",
-        "changelogUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/CHANGELOG.md",
-        "class": "anubarak\\sitemap\\Sitemap"
-    },
-    "config": {
-        "allow-plugins": {
-            "yiisoft/yii2-composer": true,
-            "craftcms/plugin-installer": true
-        }
-    },
-    "prefer-stable": true
+  "name": "anubarak/sitemap",
+  "description": "Craft 6 plugin that provides an easy way to provide and manage a XML sitemap for search engines like Google and Bing",
+  "type": "craft-plugin",
+  "version": "6.0.0-RC1",
+  "keywords": [
+    "craft",
+    "cms",
+    "craftcms",
+    "craft-plugin",
+    "sitemap",
+    "seo",
+    "sitemap.xml",
+    "webmaster tools"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dolphiq",
+      "email": "info@dolphiq.nl",
+      "homepage": "https://dolphiq.nl/"
+    }
+  ],
+  "require": {
+    "php": "^8.4",
+    "craftcms/cms": "^6.0.0-alpha.1",
+    "jaybizzle/crawler-detect": "1.*",
+    "ext-dom": "*"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Anubarak\\Sitemap\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "XML Sitemap",
+    "handle": "secondred-sitemap",
+    "developer": "Dolphiq & Anubarak",
+    "documentationUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/README.md",
+    "changelogUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/CHANGELOG.md",
+    "class": "Anubarak\\Sitemap\\Plugin",
+    "laravel": {
+      "providers": [
+        "Anubarak\\Sitemap\\Plugin"
+      ]
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
+  },
+  "prefer-stable": true
 }

@@ -49,6 +49,12 @@
                         value: 1,
                         small: true
                     }),
+                    isNews: include('_includes/forms/lightswitch', {
+                        name: 'sitemapSections[id:'~section.id~'][isNews]',
+                        on: section.isNews,
+                        value: 1,
+                        small: true
+                    }),
                     priority: section.priority,
                     changefreq : section.changefreq,
                     entries : section.elementCount,
@@ -73,7 +79,6 @@
                 heading: "Include in Sitemap"|t('app'),
 
             },
-
             enabled: {
                 type: 'heading',
                 class: 'thin',
@@ -84,6 +89,13 @@
             type: {
                 type: 'heading',
                 heading: 'Type'
+            },
+            isNews: {
+                type: 'heading',
+                class: 'thin',
+                name: 'isNews',
+                value: '1',
+                small: true
             },
             changefreq: {
                 heading : 'Change frequency',

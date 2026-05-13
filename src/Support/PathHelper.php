@@ -9,11 +9,11 @@
  * @copyright Copyright (c) 2019 Robin Schambach
  */
 
-namespace anubarak\sitemap\helpers;
+namespace Anubarak\Sitemap\Support;
 
 
-use Craft;
-use craft\helpers\FileHelper;
+use CraftCms\Cms\Support\File;
+use CraftCms\Cms\Support\Path;
 
 class PathHelper
 {
@@ -26,12 +26,11 @@ class PathHelper
      *
      * @author Robin Schambach
      * @since  17.09.2019
-     * @throws \yii\base\Exception
      */
     public static function getSiteMapPath(bool $createPath = true): string
     {
-        $path = Craft::$app->getPath()->getStoragePath() . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR;
-        FileHelper::createDirectory($path);
+        $path = app(Path::class)->storage() . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR;
+        File::makeDirectory($path);
 
         return $path;
     }
