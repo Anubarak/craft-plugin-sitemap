@@ -13,7 +13,6 @@ namespace Anubarak\Sitemap\Commands;
 
 use Anubarak\Sitemap\Data\SitemapIndex;
 use Anubarak\Sitemap\Sitemap;
-use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Site\Sites;
 use Illuminate\Console\Command;
 use function Laravel\Prompts\multiselect;
@@ -77,21 +76,17 @@ final class CreateSitemap extends Command
         if (empty($sites)) {
             // Scenario C: No flags were passed, fall back to the interactive prompt
             $selectedOptions = multiselect(
-                label: 'Would you like any of the following?',
-                options: [
-                    $this->availableOptions
-                ]
+                label: 'What Sites should be included?',
+                options: $this->availableOptions
             );
 
             $selectedCollection = collect($selectedOptions);
-
             // Example of using the selected values:
             if ($selectedCollection->contains('all')) {
                 $sites = $this->sites->getAllSites()->all();
             } else {
-                $sites = $selectedCollection->map(
-                    fn($handle) => $this->sites->getSiteByHandle(str_replace('site:', '', $handle))
-                )
+                $sites = $selectedCollection
+                    ->map(fn($handle) => $this->sites->getSiteByHandle(str_replace('site:', '', $handle)))
                     ->all();
             }
         }
