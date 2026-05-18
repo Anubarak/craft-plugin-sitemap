@@ -19,7 +19,7 @@
 
 {% set fullPageForm = true %}
 
-{% do view.registerAssetBundle("anubarak\\sitemap\\web\\assets\\sitemap\\SitemapAsset") %}
+{#{% do view.registerAssetBundle("anubarak\\sitemap\\web\\assets\\sitemap\\SitemapAsset") %}#}
 
 {# The title of this CP section #}
 {% set title = "Sitemap settings" %}
@@ -29,7 +29,7 @@
 
 {# The content of the CP Section#}
 {% block content %}
-    <input type="hidden" name="action" value="secondred-sitemap/settings/save-sitemap">
+{#    <input type="hidden" name="action" value="secondred-sitemap/settings/save-sitemap">#}
 
     {{ redirectInput('settings/sitemap') }}
 
@@ -37,12 +37,9 @@
 
     {% if allStructures|length %}
         {% for section in allStructures %}
-
-
             {% set sitemapSectionsRows = sitemapSectionsRows|merge({
                 ('id:' ~ section.id): {
                     heading: section.heading,
-                    type: section.type,
                     enabled: include('_includes/forms/lightswitch', {
                         name: 'sitemapSections[id:'~section.id~'][enabled]',
                         on: section.enabled,
@@ -91,6 +88,7 @@
                 heading: 'Type'
             },
             isNews: {
+                heading: 'News?',
                 type: 'heading',
                 class: 'thin',
                 name: 'isNews',

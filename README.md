@@ -1,6 +1,6 @@
 # XML-sitemap plugin for Craft CMS
 
-Craft 3/4/5 plugin that provides an easy way to enable and manage a XML sitemap for search engines like Google and Bing
+Craft 3/4/5/6 plugin that provides an easy way to enable and manage a XML sitemap for search engines like Google and Bing
 
 ![Screenshot](resources/screenshots/screenshot1.png)
 
@@ -29,7 +29,7 @@ In version 1.0.9 we added support for alternate languages to give [Google a bett
 ```
 ## Requirements
 
-This plugin requires Craft CMS ^3.0.0 || ^4.0.0 || ^5.0.0.
+This plugin requires Craft CMS ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0^
 
 ## Installation
 
@@ -45,13 +45,18 @@ To install the plugin, follow these instructions.
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for XML sitemap.
 
+## Generate the sitemap
+
+to generate the sitemap via cron you can run
+
+```shell
+php artisan sitemap:generate --all
+````
 
 ## XML-sitemap Roadmap
 - Settings to enable /disable and split the entries in the xml on a site basis (for multi site setup)
 - User (custom) url entry section
 - Provide a way hide entries from the list
-- Add a Ping for search engines
-- Display the last 20 visits from search engines
 
 
 ### Contributors & Developers

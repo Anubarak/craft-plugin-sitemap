@@ -10,13 +10,8 @@
 
 namespace Anubarak\Sitemap\Models;
 
-use craft\db\ActiveRecord;
-use craft\records\CategoryGroup;
-use craft\records\Field;
-use craft\records\Section;
 use CraftCms\Cms\Shared\BaseModel;
 use CraftCms\Cms\Shared\Concerns\HasUid;
-use yii\db\ActiveQuery;
 
 /**
  * SitemapRecord Record
@@ -26,7 +21,6 @@ use yii\db\ActiveQuery;
  * @since     1.0.0
  * @property int     $id
  * @property int     $linkId
- * @property string  $type
  * @property float   $priority
  * @property boolean $isNews
  * @property string  $changefreq

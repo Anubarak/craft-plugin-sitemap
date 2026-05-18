@@ -13,7 +13,6 @@ namespace Anubarak\Sitemap\Http\Controllers;
 
 use Anubarak\Sitemap\Models\SitemapEntry;
 use Anubarak\Sitemap\Plugin;
-use Anubarak\Sitemap\Sitemap;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Field\Assets;
 use CraftCms\Cms\Field\Fields;
@@ -23,20 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Default Controller
- *
- * Generally speaking, controllers are the middlemen between the front end of
- * the CP/website and your plugin’s services. They contain action methods which
- * handle individual tasks.
- *
- * A common pattern used throughout Craft involves a controller action gathering
- * post data, saving it on a model, passing the model off to a service, and then
- * responding to the request appropriately depending on the service method’s response.
- *
- * Action methods begin with the prefix “action”, followed by a description of what
- * the method does (for example, actionSaveIngredient()).
- *
- * https://craftcms.com/docs/plugins/controllers
+ * Settings Controller, render and store sitemap settings
  *
  * @author    Johan Zandstra
  * @package   Sitemap
@@ -68,7 +54,7 @@ class SettingsController
 
         $allSectionIds = $this->sections->getAllSectionIds();
         $siteMapRecords = SitemapEntry::query()
-            ->where('linkId', 'IN', $allSectionIds)
+            ->whereIn('linkId', $allSectionIds)
             ->get();
 
         foreach ($sections->all() as $section) {
@@ -93,7 +79,6 @@ class SettingsController
                 'heading'        => $section->name,
                 'fieldId'        => $model?->fieldId ?? null,
                 'handle'         => $section->handle,
-                'type'           => $section->type,
                 'elementCount'   => Entry::find()->sectionId($section->id)->count(),
                 'sitemapEntryId' => $model?->id,
                 'changefreq'     => $model?->changefreq ?? 'weekly',
@@ -106,14 +91,12 @@ class SettingsController
         return $response;
     }
 
-    // Public Methods
-    // =========================================================================
-
     /**
-     * Handle a request going to our plugin's index action URL,
-     * e.g.: actions/sitemap/default
+     * Display the sitemap
      *
-     * @return mixed
+     * @return string
+     * @author Robin Schambach
+     * @since  18.05.26
      */
     public function index()
     {
@@ -131,7 +114,7 @@ class SettingsController
             }
         }
 
-        return $this->renderer->renderTemplate('secondred-sitemap/settings', [
+        return $this->renderer->renderPageTemplate('secondred-sitemap/settings', [
             'settings'      => $this->plugin->getSettings(),
             'allStructures' => $allStructures,
             'fields'        => $fieldData
@@ -141,26 +124,15 @@ class SettingsController
     /**
      * Called when saving the settings.
      *
-     * @return \Craft\web\Response
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\db\StaleObjectException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\ForbiddenHttpException
-     * @throws \yii\web\ServerErrorHttpException
      * @throws \Throwable
      */
-    public function save()
+    public function save(): string
     {
         Gate::authorize('accessPlugin-' . $this->plugin->handle);
-
-        $settings = $this->plugin->getSettings();
 
         $sitemapSections = $this->request->post('sitemapSections');
         // filter the enabled sections
         $allSectionIds = [];
-
 
         if (is_array($sitemapSections)) {
             foreach ($sitemapSections as $key => $entry) {
@@ -181,7 +153,7 @@ class SettingsController
                         $sitemapEntry = new SitemapEntry();
                     }
                     $sitemapEntry->linkId = $id;
-                    $sitemapEntry->type = 'section';
+                    $sitemapEntry->isNews = $entry['isNews'] ?? false;
                     $sitemapEntry->priority = $entry['priority'];
                     $sitemapEntry->changefreq = $entry['changefreq'];
                     $sitemapEntry->fieldId = $entry['fieldId'] ?? null;
@@ -200,7 +172,7 @@ class SettingsController
                 ->delete();
         } else {
             SitemapEntry::query()
-                ->where('linkId', 'NOT IN', $allSectionIds)
+                ->whereNotIn('linkId', $allSectionIds)
                 ->delete();
         }
 

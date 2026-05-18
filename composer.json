@@ -2,7 +2,7 @@
   "name": "anubarak/sitemap",
   "description": "Craft 6 plugin that provides an easy way to provide and manage a XML sitemap for search engines like Google and Bing",
   "type": "craft-plugin",
-  "version": "6.0.0-RC1",
+  "version": "6.0.0-RC2",
   "keywords": [
     "craft",
     "cms",
@@ -24,7 +24,6 @@
   "require": {
     "php": "^8.4",
     "craftcms/cms": "^6.0.0-alpha.1",
-    "jaybizzle/crawler-detect": "1.*",
     "ext-dom": "*"
   },
   "repositories": [

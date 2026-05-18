@@ -1,5 +1,16 @@
 # sitemap Changelog
 
+## 6.0.0-RC2 - 2026-05-18
+
+### changed
+
+- updated everything to laravel
+- move namespace to upper-case
+
+### removed
+
+- removed all yii2 code
+
 ## 5.0.1 - 2026-01-07
 
 ### changed

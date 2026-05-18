@@ -14,7 +14,6 @@ namespace Anubarak\Sitemap;
 
 use Anubarak\Sitemap\Data\SitemapIndex;
 use Anubarak\Sitemap\Support\PathHelper;
-use Craft;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Entry\EntryTypes;
@@ -23,14 +22,12 @@ use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Section\Sections;
 use CraftCms\Cms\Site\Data\Site;
 use DateTime;
-use Anubarak\Sitemap\behaviors\ElementSiteMapBehavior;
 use Anubarak\Sitemap\Events\PopulateNewsEvent;
 use Anubarak\Sitemap\Events\SearchElementsEvent;
 use Anubarak\Sitemap\Models\SitemapEntry;
 use DOMDocument;
 use DOMElement;
 use Illuminate\Container\Attributes\Singleton;
-use Illuminate\Support\Arr;
 
 /**
  * SitemapService Service
@@ -66,8 +63,11 @@ class Sitemap
      * @since   17.09.2019
      * @author  Robin Schambach
      */
-    public function buildIndexFile(Site $site): DOMDocument
-    {
+    public function buildIndexFile(
+        Site      $site,
+        ?callable $indexCallback = null,
+        ?callable $entryCb = null
+    ): DOMDocument {
         $records = SitemapEntry::query()
             ->get();
         $indexes = [];
@@ -79,11 +79,14 @@ class Sitemap
 
                 /** @var Section|null $section */
                 $section = $this->sections->getAllSections()
-                    ->first(fn(Section $section) => $section->id === $record->sectionId);
+                    ->first(fn(Section $section) => $section->id === $record->linkId);
+                if (!$section) {
+                    continue;
+                }
 
                 $indexes[] = new SitemapIndex(
                     $record,
-                    $section?->handle,
+                    $section->handle,
                     [(int) $record->linkId],
                     $start,
                     $max,
@@ -105,8 +108,21 @@ class Sitemap
         $path = PathHelper::getSiteMapPath();
 
         $baseUrl = $site->getBaseUrl() . 'sitemap_';
+
+        $current = 1;
+        $max = count($indexes);
+
         foreach ($indexes as $index) {
-            $subSiteMap = $this->buildSiteMap($index, $site);
+
+            if ($indexCallback) {
+                $indexCallback($index, $current, $max);
+            }
+
+            $subSiteMap = $this->buildSiteMap($index, $site, function(int $current, int $max) use ($entryCb, $index) {
+                if ($entryCb) {
+                    $entryCb($current, $max);
+                }
+            });
             if ($subSiteMap) {
                 $url = $dom->createElement('sitemap');
                 $siteMapIndex->appendChild($url);
@@ -115,6 +131,7 @@ class Sitemap
                 $subSiteMap['siteMap']->save($path . 'sitemap_' . $site->id . '_' . $index->getName() . '.xml');
                 $url->appendChild($dom->createElement('lastmod', $subSiteMap['lastEdited']));
             }
+            $current++;
         }
 
 
@@ -132,11 +149,10 @@ class Sitemap
      * @return array
      *
      * @throws \DOMException
-     * @throws \yii\base\InvalidConfigException
      * @since  17.09.2019
      * @author Robin Schambach
      */
-    public function buildSiteMap(SitemapIndex $sitemapIndex, Site $site): array
+    public function buildSiteMap(SitemapIndex $sitemapIndex, Site $site, ?callable $cb = null): array
     {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -168,6 +184,8 @@ class Sitemap
         if (!isset($entriesBySite[$site->id])) {
             return [];
         }
+        $current = 1;
+        $max = count($entriesBySite[$site->id] ?? []);
         foreach ($entriesBySite[$site->id] as $element) {
             $node = null;
             if ($isNews === false) {
@@ -186,6 +204,10 @@ class Sitemap
                 $urlset->appendChild($node);
             }
             // add news information
+
+            if ($cb) {
+                $cb($current, $max);
+            }
         }
 
         $query = Entry::find()
@@ -237,7 +259,6 @@ class Sitemap
 
         $url = $dom->createElement('url');
         $url->appendChild($dom->createElement('loc', $loc));
-        // TODO fix behavior
         $url->appendChild($dom->createElement('priority', $sitemapIndex->getSitemapEntry()->priority));
         $url->appendChild($dom->createElement('changefreq', $sitemapIndex->getSitemapEntry()->changefreq));
         $dateUpdated = $element->dateUpdated->format(DATE_ATOM);
@@ -299,7 +320,7 @@ class Sitemap
         /** @var Entry $element */
         $author = $element->getAuthor();
         $defaultData = [
-            'author'   => $author !== null ? $author->getFullName() : '',
+            'author'   => $author !== null ? ($author->fullName ?? $author->friendlyName) : '',
             'language' => $site->language,
             'postDate' => $element->postDate !== null ? $element->postDate->format(DateTime::ATOM) : null,
             'title'    => $element->title,
@@ -309,7 +330,6 @@ class Sitemap
         event($event = new PopulateNewsEvent($element, $defaultData));
 
         $data = $event->data;
-
         if ($data['url'] === null || $data['author'] === null || $data['language'] === null) {
             return null;
         }
@@ -367,6 +387,7 @@ class Sitemap
             $field = $this->fields->getFieldById($record->fieldId);
         }
 
+
         $query = Entry::find()
             ->siteId('*')
             ->typeId($entryTypes)
@@ -393,6 +414,7 @@ class Sitemap
 
         /** @var Entry[] $entriesForSection */
         $entriesForSection = $event->query->all();
+
         foreach ($entriesForSection as $element) {
             //            $asset = $field !== null ? $element->getFieldValue($field->handle)->one() : null;
             //            $element->attachBehavior('meta', [

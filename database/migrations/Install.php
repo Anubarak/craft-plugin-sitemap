@@ -49,11 +49,11 @@ class Install extends \CraftCms\Cms\Database\Migration
                     ->on('fields');
 
 
-                $table->index(['type', 'linkId']);
+                $table->index(['linkId']);
 
-                $table->foreign('linkSiteId')
+                $table->foreign('linkId')
                     ->references('id')
-                    ->on('sites')
+                    ->on('sections')
                     ->onDelete('SET NULL');
             });
         }
@@ -61,7 +61,7 @@ class Install extends \CraftCms\Cms\Database\Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('dolphiq_sitemap_entries');
+        Schema::drop('dolphiq_sitemap_entries');
     }
 }
 

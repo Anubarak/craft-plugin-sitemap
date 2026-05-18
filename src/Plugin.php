@@ -12,7 +12,6 @@ namespace Anubarak\Sitemap;
 
 
 use Anubarak\Sitemap\Commands\CreateSitemap;
-use function CraftCms\Cms\template;
 
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
@@ -38,38 +37,13 @@ class Plugin extends \CraftCms\Cms\Plugin\Plugin
     protected array $commands = [
         CreateSitemap::class,
     ];
-
-
-    public bool $hasCpSection  = true;
+    /** @inheritdoc */
     public bool $hasCpSettings = false;
-    // table schema version
+    /** @inheritdoc */
+    public bool $hasCpSection = true;
+    /** @inheritdoc */
     public string $schemaVersion = '1.0.5';
 
-
-
-//    public function registerCpUrlRules(RegisterUrlRulesEvent $event): void
-//    {
-//        $rules = [
-//            // register routes for the settings tab
-//            'settings/sitemap'              => [
-//                'route'  => 'secondred-sitemap/settings',
-//                'params' => ['source' => 'CpSettings']
-//            ],
-//            'secondred-sitemap'             => [
-//                'route'  => 'secondred-sitemap/settings',
-//                'params' => ['source' => 'CpSettings']
-//            ],
-//            'sitemap'                       => [
-//                'route'  => 'secondred-sitemap/settings',
-//                'params' => ['source' => 'CpSettings']
-//            ],
-//            'settings/sitemap/save-sitemap' => [
-//                'route'  => 'secondred-sitemap/settings/save-sitemap',
-//                'params' => ['source' => 'CpSettings']
-//            ],
-//        ];
-//        $event->rules = array_merge($event->rules, $rules);
-//    }
     /**
      * Creates and returns the model used to store the plugin’s settings.
      *

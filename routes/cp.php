@@ -11,7 +11,7 @@ Route::middleware(['auth:craft', 'craft.web', 'can:accessCp'])->group(function()
     );
 
     Route::post(
-        'secondred-sitemap/save',
+        'secondred-sitemap',
         [SettingsController::class, 'save']
     );
 });
