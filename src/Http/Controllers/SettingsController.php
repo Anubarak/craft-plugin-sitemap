@@ -17,7 +17,7 @@ use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Field\Assets;
 use CraftCms\Cms\Field\Fields;
 use CraftCms\Cms\Section\Sections;
-use CraftCms\Cms\Twig\TemplateRenderer;
+use CraftCms\Cms\View\TemplateRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
