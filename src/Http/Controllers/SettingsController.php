@@ -17,7 +17,7 @@ use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Field\Assets;
 use CraftCms\Cms\Field\Fields;
 use CraftCms\Cms\Section\Sections;
-use CraftCms\Cms\View\TemplateRenderer;
+use CraftCms\Cms\View\TemplateManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -32,7 +32,7 @@ class SettingsController
 {
     public function __construct(
         private readonly Plugin           $plugin,
-        private readonly TemplateRenderer $renderer,
+        private readonly TemplateManager $renderer,
         private readonly Fields           $fields,
         private readonly Sections         $sections,
         private readonly Request          $request,
