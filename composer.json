@@ -43,12 +43,7 @@
     "developer": "Dolphiq & Anubarak",
     "documentationUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/README.md",
     "changelogUrl": "https://github.com/Dolphiq/craft3-plugin-sitemap/blob/master/CHANGELOG.md",
-    "class": "Anubarak\\Sitemap\\Plugin",
-    "laravel": {
-      "providers": [
-        "Anubarak\\Sitemap\\Plugin"
-      ]
-    }
+    "class": "Anubarak\\Sitemap\\Plugin"
   },
   "config": {
     "allow-plugins": {
